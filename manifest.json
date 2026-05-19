@@ -1,0 +1,9 @@
+{
+	"id": "auto-card-link",
+	"name": "Link Card",
+	"version": "1.0.0",
+	"minAppVersion": "0.12.0",
+	"description": "Automatically fetches metadata from a url and makes it as a card-styled link",
+	"author": "Hsyoungtick",
+	"isDesktopOnly": false
+}
