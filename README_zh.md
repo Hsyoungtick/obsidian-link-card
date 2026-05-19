@@ -1,6 +1,6 @@
 <div align="center">
 
-### Link Card
+### 卡片链接
 
 一个将 URL 渲染为精美的卡片的 Obsidian 插件
 
@@ -10,7 +10,7 @@
 
 </div>
 
-## 💻 功能特性
+## 💻 功能
 
 - **粘贴即渲染** — 粘贴 URL 自动转为卡片链接
 - **回退链机制** — 依次尝试：专用解析器 → HTML meta 标签 → 第三方 API（Microlink）
@@ -24,7 +24,7 @@
 - **深色模式** — 卡片跟随 Obsidian 的明暗模式
 - **双语界面** — 中英文界面
 
-## 🚀 快速开始
+## 🚀 安装
 
 ### 方法一：使用 BRAT 安装
 
@@ -134,9 +134,11 @@ pnpm build
 
 - [ ] 支持更多网站的元数据提取
 
-## 💖 致谢
+## ✨ 灵感来源
 
-- 受到 [obsidian-auto-card-link](https://github.com/nekoshita/obsidian-auto-card-link)、[obsidian-nifty-links](https://github.com/x-Ai/obsidian-nifty-links) 和 [hexo-tag-bilibili-card](https://github.com/wherewhere/hexo-tag-bilibili-card) 的启发
+- [obsidian-auto-card-link](https://github.com/nekoshita/obsidian-auto-card-link) 自动从 URL 获取元数据并将其转换为卡片式链接
+- [obsidian-nifty-links](https://github.com/x-Ai/obsidian-nifty-links) 生成优雅的、Notion 风格的富链接卡片
+- [hexo-tag-bilibili-card](https://github.com/wherewhere/hexo-tag-bilibili-card) 一个 Hexo 插件，在你的文章中插入哔哩哔哩卡片
 
 ## 🤖 免责声明
 

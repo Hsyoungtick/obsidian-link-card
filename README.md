@@ -24,7 +24,7 @@ English / [中文](README_zh.md)
 - **Dark Mode** — Cards follow Obsidian's light/dark mode
 - **Bilingual UI** — Chinese and English interface
 
-## 🚀 Quick Start
+## 🚀 Install
 
 ### Option 1: Install via BRAT
 
@@ -36,8 +36,9 @@ English / [中文](README_zh.md)
 ### Option 2: Manual Install
 
 1. Download `main.js`, `styles.css`, `manifest.json` from [Releases](https://github.com/Hsyoungtick/obsidian-link-card/releases)
-2. Move them to `.obsidian/plugins/link-card/`
-3. Enable the plugin in Obsidian settings
+2. Create a `link-card` folder under `.obsidian/plugins/`
+3. Move the downloaded files to `.obsidian/plugins/link-card/`
+4. Restart Obsidian and enable the plugin in settings
 
 ## 📖 Usage
 
@@ -133,9 +134,11 @@ To auto-copy to your Vault during development, create `.devconfig.json`:
 
 - [ ] Support metadata extraction for more websites
 
-## 💖 Acknowledgements
+## ✨ Inspired By
 
-- Inspired by [obsidian-auto-card-link](https://github.com/nekoshita/obsidian-auto-card-link), [obsidian-nifty-links](https://github.com/x-Ai/obsidian-nifty-links), and [hexo-tag-bilibili-card](https://github.com/wherewhere/hexo-tag-bilibili-card)
+- [obsidian-auto-card-link](https://github.com/nekoshita/obsidian-auto-card-link) Automatically fetches metadata from URLs and converts them into card-style links
+- [obsidian-nifty-links](https://github.com/x-Ai/obsidian-nifty-links) Generates elegant, Notion-style rich link cards
+- [hexo-tag-bilibili-card](https://github.com/wherewhere/hexo-tag-bilibili-card) A Hexo plugin to insert Bilibili cards in your articles
 
 ## 🤖 Disclaimer
 
