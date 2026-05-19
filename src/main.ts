@@ -22,10 +22,9 @@ export default class ObsidianAutoCardLink extends Plugin {
 			this.settings.cacheEnabled,
 			this.settings.cacheExpiry
 		);
-		const appAny = this.app as unknown as Record<string, unknown>;
-		const loadFn = appAny.loadLocalStorage as ((key: string) => unknown) | undefined;
-		const cachedData = loadFn ? loadFn("auto-card-link-cache") as Record<string, import("./cache").CacheEntry> | null : null;
-		this.cache.fromJSON(cachedData || null);
+		const storedData = await this.loadData() as Record<string, unknown> | null;
+		const cacheEntries = (storedData?.["auto-card-link-cache"] as Record<string, import("./cache").CacheEntry> | null) || null;
+		this.cache.fromJSON(cacheEntries);
 
 		CodeBlockGenerator.settings = this.settings;
 		CodeBlockGenerator.cache = this.cache;
@@ -74,7 +73,7 @@ export default class ObsidianAutoCardLink extends Plugin {
 	}
 
 	onunload() {
-		this.saveCacheData();
+		void this.saveCacheData();
 	}
 
 	async loadSettings() {
@@ -108,14 +107,14 @@ export default class ObsidianAutoCardLink extends Plugin {
 		CodeBlockProcessor.settings = this.settings;
 	}
 
-	saveCacheData() {
+	async saveCacheData() {
 		try {
 			const cacheData = this.cache.toJSON();
 			const cacheStr = JSON.stringify(cacheData);
 			if (cacheStr.length < 5000000) {
-				const appAny = this.app as unknown as Record<string, unknown>;
-				const saveFn = appAny.saveLocalStorage as ((key: string, data: unknown) => void) | undefined;
-				if (saveFn) saveFn("auto-card-link-cache", cacheData);
+				const existingData = ((await this.loadData()) as Record<string, unknown> | null) || {};
+				existingData["auto-card-link-cache"] = cacheData;
+				await this.saveData(existingData);
 			}
 		} catch (e) {
 			log("Failed to save cache:", e);
@@ -131,7 +130,7 @@ export default class ObsidianAutoCardLink extends Plugin {
 
 		const generator = new CodeBlockGenerator(editor);
 		await generator.convertUrlToCodeBlock(url);
-		this.saveCacheData();
+		await this.saveCacheData();
 	}
 
 	async enhanceSelectedUrl(editor: Editor): Promise<void> {
@@ -148,7 +147,7 @@ export default class ObsidianAutoCardLink extends Plugin {
 
 		const generator = new CodeBlockGenerator(editor);
 		await generator.convertUrlToCodeBlock(url);
-		this.saveCacheData();
+		await this.saveCacheData();
 	}
 
 	handlePaste(evt: ClipboardEvent): void {
@@ -168,8 +167,8 @@ export default class ObsidianAutoCardLink extends Plugin {
 		evt.preventDefault();
 
 		const generator = new CodeBlockGenerator(editor);
-		generator.convertUrlToCodeBlock(url).then(() => {
-			this.saveCacheData();
+		generator.convertUrlToCodeBlock(url).then(async () => {
+			await this.saveCacheData();
 		});
 	}
 
