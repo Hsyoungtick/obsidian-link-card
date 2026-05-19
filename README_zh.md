@@ -6,6 +6,8 @@
 
 [English](README.md) / 中文
 
+![Preview](preview.png)
+
 </div>
 
 ## 💻 功能特性

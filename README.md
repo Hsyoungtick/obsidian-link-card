@@ -6,6 +6,8 @@ An Obsidian plugin that renders URLs as elegant cards
 
 English / [中文](README_zh.md)
 
+![Preview](preview.png)
+
 </div>
 
 ## 💻 Features
