@@ -5,9 +5,9 @@ export interface LinkMetadataParseResult {
 	title?: string;
 	description?: string;
 	host: string;
-	favicon?: string;
 	image?: string;
 	avatar?: string;
+	avatarIsFavicon?: boolean;
 	author?: string;
 	date?: string;
 	stars?: string;
@@ -125,8 +125,6 @@ export class LinkMetadataParser {
 			log("图片选择: 无可用图片");
 		}
 
-		if (favicon) data.favicon = favicon;
-
 		const specialistAvatar = specialistData?.avatar as string | undefined;
 		if (specialistAvatar) {
 			data.avatar = specialistAvatar;
@@ -134,6 +132,7 @@ export class LinkMetadataParser {
 			data.avatar = extractedImages.avatar;
 		} else if (favicon) {
 			data.avatar = favicon;
+			data.avatarIsFavicon = true;
 		}
 
 		const specialistDate = specialistData?.date as string | undefined;

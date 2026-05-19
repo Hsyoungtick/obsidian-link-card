@@ -1386,8 +1386,6 @@ var LinkMetadataParser = class {
     } else {
       log("\u56FE\u7247\u9009\u62E9: \u65E0\u53EF\u7528\u56FE\u7247");
     }
-    if (favicon)
-      data.favicon = favicon;
     const specialistAvatar = specialistData == null ? void 0 : specialistData.avatar;
     if (specialistAvatar) {
       data.avatar = specialistAvatar;
@@ -1395,6 +1393,7 @@ var LinkMetadataParser = class {
       data.avatar = extractedImages.avatar;
     } else if (favicon) {
       data.avatar = favicon;
+      data.avatarIsFavicon = true;
     }
     const specialistDate = specialistData == null ? void 0 : specialistData.date;
     const specialistPubdate = specialistData == null ? void 0 : specialistData.pubdate;
@@ -1655,8 +1654,8 @@ var RENDER_FIELDS = [
   "description",
   "host",
   "image",
-  "favicon",
   "avatar",
+  "avatarIsFavicon",
   "author",
   "date",
   "stars",
@@ -1973,8 +1972,8 @@ var _CodeBlockProcessor = class {
       description: yaml.description,
       host: yaml.host,
       image: yaml.image,
-      favicon: yaml.favicon,
       avatar: yaml.avatar,
+      avatarIsFavicon: yaml.avatarIsFavicon,
       author: yaml.author,
       duration: yaml.duration,
       views: yaml.views,
@@ -2142,14 +2141,11 @@ var _CodeBlockProcessor = class {
     contentContainer.appendChild(bottomEl);
     const authorEl = document.createElement("div");
     authorEl.addClass("author-info");
-    const avatarSrc = data.avatar || data.favicon;
+    const avatarSrc = data.avatar;
     if (avatarSrc) {
-      if (data.avatar)
-        usedRenderFields.push("avatar");
-      else
-        usedRenderFields.push("favicon");
+      usedRenderFields.push("avatar");
       const img = document.createElement("img");
-      img.addClass("avatar-icon");
+      img.addClass(data.avatarIsFavicon ? "favicon-icon" : "avatar-icon");
       img.setAttr("src", avatarSrc);
       img.setAttr("draggable", "false");
       img.onerror = () => {

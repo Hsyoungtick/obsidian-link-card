@@ -27,8 +27,8 @@ interface CardData {
 	description?: string;
 	host?: string;
 	image?: string;
-	favicon?: string;
 	avatar?: string;
+	avatarIsFavicon?: boolean;
 	author?: string;
 	duration?: string;
 	views?: string;
@@ -121,8 +121,8 @@ export class CodeBlockProcessor {
 			description: yaml.description,
 			host: yaml.host,
 			image: yaml.image,
-			favicon: yaml.favicon,
 			avatar: yaml.avatar,
+			avatarIsFavicon: yaml.avatarIsFavicon,
 			author: yaml.author,
 			duration: yaml.duration,
 			views: yaml.views,
@@ -307,12 +307,11 @@ export class CodeBlockProcessor {
 		const authorEl = document.createElement("div");
 		authorEl.addClass("author-info");
 
-		const avatarSrc = data.avatar || data.favicon;
+		const avatarSrc = data.avatar;
 		if (avatarSrc) {
-			if (data.avatar) usedRenderFields.push("avatar");
-			else usedRenderFields.push("favicon");
+			usedRenderFields.push("avatar");
 			const img = document.createElement("img");
-			img.addClass("avatar-icon");
+			img.addClass(data.avatarIsFavicon ? "favicon-icon" : "avatar-icon");
 			img.setAttr("src", avatarSrc);
 			img.setAttr("draggable", "false");
 			img.onerror = () => {
