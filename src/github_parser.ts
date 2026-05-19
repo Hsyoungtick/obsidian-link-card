@@ -84,10 +84,10 @@ export class GitHubParser {
 			}
 			log("GitHub parse: 日期回退链: created_at(" + (data.created_at || "无") + ") → 最终选择date=" + (date || "无"));
 
-			const coverUrl = `https://opengraph.githubassets.com/1/${owner}/${repo}`;
+			const coverUrl = data.owner?.avatar_url || undefined;
 			const avatarUrl = data.owner?.avatar_url || undefined;
 
-			log("GitHub parse: 图片回退链: cover(opengraph)(" + coverUrl + ") -> avatar(" + (avatarUrl || "无") + ") → 最终选择cover作为image");
+			log("GitHub parse: image=owner avatar(" + (coverUrl || "无") + ")");
 
 			const result: GitHubParseResult = {
 				url: this.url,
@@ -170,11 +170,9 @@ export class GitHubParser {
 			log("GitHub HTML: 日期回退链: datetime(" + (relativeTime?.getAttribute("datetime") || "无") + ") → 最终选择date=" + (date || "无"));
 
 			const repoInfo = GitHubParser.extractRepoInfo(this.url);
-			const coverUrl = repoInfo
-				? `https://opengraph.githubassets.com/1/${repoInfo.owner}/${repoInfo.repo}`
-				: image;
+			const coverUrl = image || (repoInfo ? `https://avatars.githubusercontent.com/${repoInfo.owner}` : undefined);
 
-			log("GitHub HTML: 图片回退链: cover(opengraph)(" + coverUrl + ") -> og:image(" + (image || "无") + ") → 最终选择cover作为image");
+			log("GitHub HTML: image=og:image or avatar(" + (coverUrl || "无") + ")");
 
 			const result: GitHubParseResult = {
 				url: this.url,

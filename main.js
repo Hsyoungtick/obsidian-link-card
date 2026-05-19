@@ -844,7 +844,7 @@ var GitHubParser = class {
     }
   }
   async parseFromApi(owner, repo) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     try {
       const apiUrl = `https://api.github.com/repos/${owner}/${repo}`;
       const res = await (0, import_obsidian4.requestUrl)({
@@ -866,9 +866,9 @@ var GitHubParser = class {
         date = formatDateFromString(data.created_at);
       }
       log("GitHub parse: \u65E5\u671F\u56DE\u9000\u94FE: created_at(" + (data.created_at || "\u65E0") + ") \u2192 \u6700\u7EC8\u9009\u62E9date=" + (date || "\u65E0"));
-      const coverUrl = `https://opengraph.githubassets.com/1/${owner}/${repo}`;
-      const avatarUrl = ((_b = data.owner) == null ? void 0 : _b.avatar_url) || void 0;
-      log("GitHub parse: \u56FE\u7247\u56DE\u9000\u94FE: cover(opengraph)(" + coverUrl + ") -> avatar(" + (avatarUrl || "\u65E0") + ") \u2192 \u6700\u7EC8\u9009\u62E9cover\u4F5C\u4E3Aimage");
+      const coverUrl = ((_b = data.owner) == null ? void 0 : _b.avatar_url) || void 0;
+      const avatarUrl = ((_c = data.owner) == null ? void 0 : _c.avatar_url) || void 0;
+      log("GitHub parse: image=owner avatar(" + (coverUrl || "\u65E0") + ")");
       const result = {
         url: this.url,
         title,
@@ -876,7 +876,7 @@ var GitHubParser = class {
         host: "github.com",
         image: coverUrl,
         avatar: avatarUrl,
-        author: ((_c = data.owner) == null ? void 0 : _c.login) || owner,
+        author: ((_d = data.owner) == null ? void 0 : _d.login) || owner,
         stars: data.stargazers_count !== void 0 ? formatNumberEN(data.stargazers_count) : void 0,
         repo: data.name || repo,
         date,
@@ -936,8 +936,8 @@ var GitHubParser = class {
       }
       log("GitHub HTML: \u65E5\u671F\u56DE\u9000\u94FE: datetime(" + ((relativeTime == null ? void 0 : relativeTime.getAttribute("datetime")) || "\u65E0") + ") \u2192 \u6700\u7EC8\u9009\u62E9date=" + (date || "\u65E0"));
       const repoInfo = GitHubParser.extractRepoInfo(this.url);
-      const coverUrl = repoInfo ? `https://opengraph.githubassets.com/1/${repoInfo.owner}/${repoInfo.repo}` : image;
-      log("GitHub HTML: \u56FE\u7247\u56DE\u9000\u94FE: cover(opengraph)(" + coverUrl + ") -> og:image(" + (image || "\u65E0") + ") \u2192 \u6700\u7EC8\u9009\u62E9cover\u4F5C\u4E3Aimage");
+      const coverUrl = image || (repoInfo ? `https://avatars.githubusercontent.com/${repoInfo.owner}` : void 0);
+      log("GitHub HTML: image=og:image or avatar(" + (coverUrl || "\u65E0") + ")");
       const result = {
         url: this.url,
         title,
