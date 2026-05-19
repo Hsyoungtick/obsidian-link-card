@@ -122,7 +122,7 @@ To auto-copy to your Vault during development, create `.devconfig.json`:
 ```json
 {
   "vaultPluginPaths": [
-    "/path/to/your/vault/.obsidian/plugins/auto-card-link"
+    "/path/to/your/vault/.obsidian/plugins/link-card"
   ]
 }
 ```

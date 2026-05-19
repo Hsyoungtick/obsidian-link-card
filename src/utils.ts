@@ -115,11 +115,7 @@ export function extractCleanImageUrl(url: string): string {
 	if (atMatch) {
 		return atMatch[1];
 	}
-	const extMatch = cleanUrl.match(/^(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp))/i);
-	if (extMatch) {
-		return extMatch[1];
-	}
-	return cleanUrl.split("?")[0];
+	return cleanUrl;
 }
 
 function isCoverUrl(url: string): boolean {

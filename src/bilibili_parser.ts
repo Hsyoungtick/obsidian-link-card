@@ -1,4 +1,4 @@
-﻿import { requestUrl } from "obsidian";
+import { requestUrl } from "obsidian";
 import { extractCleanImageUrl, extractImagesFromDoc, formatDateFromTimestamp, formatNumberCN, log, sanitizeText, DEFAULT_USER_AGENT } from "./utils";
 
 export interface BilibiliParseResult {
@@ -106,10 +106,6 @@ export class BilibiliParser {
 			log("Bilibili API error:", e);
 			return null;
 		}
-	}
-
-	async parseOpus(_opusId: string): Promise<BilibiliParseResult | null> {
-		return await this.parseOpusFromHTML();
 	}
 
 	async parseOpusFromHTML(): Promise<BilibiliParseResult | null> {

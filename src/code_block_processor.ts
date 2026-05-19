@@ -10,6 +10,15 @@ import { CheckIf } from "./checkif";
 import { ObsidianAutoCardLinkSettings } from "./settings";
 import { t } from "./i18n";
 import { ICON_PLAY, ICON_STAR, ICON_DATE } from "./icons";
+
+function insertSvg(container: HTMLElement, svgString: string): void {
+	const template = document.createElement("template");
+	template.innerHTML = svgString.trim();
+	const node = template.content.firstChild;
+	if (node) {
+		container.appendChild(node);
+	}
+}
 import { log } from "./utils";
 
 interface CardData {
@@ -255,7 +264,7 @@ export class CodeBlockProcessor {
 			usedRenderFields.push("views");
 			const viewItem = document.createElement("span");
 			viewItem.addClass("cover-info-item");
-			viewItem.innerHTML = ICON_PLAY;
+			insertSvg(viewItem, ICON_PLAY);
 			const viewNum = document.createElement("span");
 			viewNum.addClass("num-info");
 			viewNum.textContent = data.views;
@@ -267,7 +276,7 @@ export class CodeBlockProcessor {
 			usedRenderFields.push("stars");
 			const starItem = document.createElement("span");
 			starItem.addClass("cover-info-item");
-			starItem.innerHTML = ICON_STAR;
+			insertSvg(starItem, ICON_STAR);
 			const starCount = document.createElement("span");
 			starCount.addClass("num-info");
 			starCount.textContent = data.stars;
@@ -279,7 +288,7 @@ export class CodeBlockProcessor {
 			usedRenderFields.push("date");
 			const dateItem = document.createElement("span");
 			dateItem.addClass("cover-info-item");
-			dateItem.innerHTML = ICON_DATE;
+			insertSvg(dateItem, ICON_DATE);
 			const dateText = document.createElement("span");
 			dateText.addClass("num-info");
 			dateText.textContent = data.date;

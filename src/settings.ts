@@ -1,6 +1,6 @@
-import { App, PluginSettingTab, Notice, Setting, requestUrl, Modal } from "obsidian";
+import { App, PluginSettingTab, Notice, Setting } from "obsidian";
 import { t } from "./i18n";
-import { DEFAULT_USER_AGENT, setDebugEnabled } from "./utils";
+import { setDebugEnabled } from "./utils";
 import type ObsidianAutoCardLink from "./main";
 
 export interface ObsidianAutoCardLinkSettings {
@@ -26,44 +26,6 @@ export const DEFAULT_SETTINGS: ObsidianAutoCardLinkSettings = {
 	tpl_bilibili_video_apiUrl: "https://api.bilibili.com/x/web-interface/view",
 	tpl_x_htmlProxyUrl: "http://127.0.0.1:8080",
 };
-
-class TestResultModal extends Modal {
-	resultText: string;
-
-	constructor(app: App, resultText: string) {
-		super(app);
-		this.resultText = resultText;
-	}
-
-	onOpen() {
-		const { contentEl } = this;
-		contentEl.empty();
-		contentEl.createEl("h3", { text: t("Test result") });
-
-		const pre = contentEl.createEl("pre", {
-			cls: "link-card-test-result",
-		});
-		pre.textContent = this.resultText;
-		pre.style.cssText =
-			"max-height:400px;overflow:auto;background:var(--background-secondary);padding:12px;border-radius:6px;font-size:12px;white-space:pre-wrap;word-break:break-all;user-select:all;cursor:text;";
-
-		new Setting(contentEl)
-			.addButton((btn) =>
-				btn.setButtonText(t("Copy")).onClick(() => {
-					navigator.clipboard.writeText(this.resultText);
-					new Notice(t("Copied"));
-				})
-			)
-			.addButton((btn) =>
-				btn.setButtonText(t("Close")).onClick(() => this.close())
-			);
-	}
-
-	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
-	}
-}
 
 export class ObsidianAutoCardLinkSettingTab extends PluginSettingTab {
 	plugin: ObsidianAutoCardLink;

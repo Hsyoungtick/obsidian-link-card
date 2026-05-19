@@ -34,8 +34,9 @@
 ### 方法二：手动安装
 
 1. 从 [Releases](https://github.com/Hsyoungtick/obsidian-link-card/releases) 下载 `main.js`、`styles.css`、`manifest.json`
-2. 移动到 `.obsidian/plugins/link-card/`
-3. 在 Obsidian 设置中启用插件
+2. 在 `.obsidian/plugins/` 下创建 `link-card` 文件夹
+3. 将下载的文件移动到 `.obsidian/plugins/link-card/`
+4. 重启 Obsidian，在设置中启用插件
 
 ## 📖 使用方法
 

@@ -253,40 +253,6 @@ export class CodeBlockGenerator {
 			log("Microlink API fallback error:", e);
 		}
 
-		try {
-			const iframelyUrl = `http://iframely.server.crestify.com/iframely?url=${encodeURIComponent(url)}`;
-			const res = await requestUrl({ url: iframelyUrl });
-			if (res.status === 200 && res.json) {
-				const data = res.json;
-				if (data.code === 403) return null;
-
-				const { hostname } = new URL(url);
-				const result: Record<string, unknown> = {
-					url: url,
-					title: data.meta?.title || "",
-					description: data.meta?.description || "",
-					host: hostname,
-					indent: 0,
-				};
-
-				const imageLink = data.links?.find(
-					(l: { type: string; rel: string[] }) =>
-						l.type?.startsWith("image") &&
-						l.rel?.includes("twitter")
-				);
-				if (imageLink) {
-					result.image = imageLink.href;
-				}
-
-				if (result.title) {
-					this.saveToCache(url, result);
-					return result;
-				}
-			}
-		} catch (e) {
-			log("iframely API fallback error:", e);
-		}
-
 		return null;
 	}
 
