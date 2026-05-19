@@ -63,8 +63,9 @@ var en = {
   "URL pattern desc": "Regex pattern to match for this template",
   "API URL": "API URL",
   "API URL desc": "Official API endpoint (leave empty to skip API)",
+  "YouTube oEmbed URL desc": "YouTube oEmbed endpoint for fetching video metadata",
   "HTML proxy URL": "HTML proxy URL",
-  "HTML proxy desc": "Proxy URL for fetching HTML (e.g., VPN, nitter address)",
+  "HTML proxy desc": "Requires a nitter instance for X/Twitter. See: https://github.com/Hsyoungtick/twitter-gallery/blob/main/docs/nitter_config.md",
   "Test": "Test",
   "Extract config": "Extract Configuration",
   "Bilibili video config": "Bilibili Video Config",
@@ -73,9 +74,9 @@ var en = {
   "Field mapping": "Field Mapping",
   "Field mapping desc": "Define fields to extract, one per line. Use field(source) to map from source path",
   "Paste URL and enhance": "Paste URL and enhance to card link",
-  "Enhance selected URL": "Enhance selected URL to card link",
+  "Render as card": "Render as card",
   "Paste and enhance menu": "Paste URL and enhance to card link",
-  "Enhance URL menu": "Enhance selected URL to card link",
+  "Render as card menu": "Render as card",
   "Failed to fetch": "Failed to fetch link metadata",
   "URL copied": "URL copied to clipboard",
   "API URL required": "Please configure API URL first",
@@ -122,8 +123,9 @@ var zhCN = {
   "URL pattern desc": "\u5339\u914D\u6B64\u6A21\u677F\u7684\u6B63\u5219\u8868\u8FBE\u5F0F",
   "API URL": "API \u5730\u5740",
   "API URL desc": "\u7F51\u7AD9\u5B98\u65B9\u7ED9\u51FA\u7684 API \u63A5\u53E3\u5730\u5740\uFF08\u7559\u7A7A\u5219\u4E0D\u4F7F\u7528 API\uFF09",
+  "YouTube oEmbed URL desc": "YouTube oEmbed \u63A5\u53E3\u5730\u5740\uFF0C\u7528\u4E8E\u83B7\u53D6\u89C6\u9891\u5143\u6570\u636E",
   "HTML proxy URL": "HTML \u4EE3\u7406\u5730\u5740",
-  "HTML proxy desc": "\u6293\u53D6 HTML \u65F6\u4F7F\u7528\u7684\u4EE3\u7406\u5730\u5740\uFF08\u4EE3\u7406\u6216\u53CD\u4EE3\uFF0C\u6BD4\u5982 VPN\u3001nitter \u5730\u5740\uFF09",
+  "HTML proxy desc": "\u83B7\u53D6 X/Twitter \u4FE1\u606F\u9700\u8981\u90E8\u7F72 nitter\uFF0C\u53C2\u8003\u6587\u6863\uFF1Ahttps://github.com/Hsyoungtick/twitter-gallery/blob/main/docs/nitter_config_zh.md",
   "Test": "\u6D4B\u8BD5",
   "Extract config": "\u63D0\u53D6\u914D\u7F6E",
   "Bilibili video config": "B \u7AD9\u89C6\u9891\u914D\u7F6E",
@@ -132,9 +134,9 @@ var zhCN = {
   "Field mapping": "\u5B57\u6BB5\u6620\u5C04",
   "Field mapping desc": "\u5B9A\u4E49\u8981\u63D0\u53D6\u7684\u5B57\u6BB5\uFF0C\u6BCF\u884C\u4E00\u4E2A\u3002\u4F7F\u7528 field(source) \u4ECE\u6E90\u8DEF\u5F84\u6620\u5C04",
   "Paste URL and enhance": "\u7C98\u8D34 URL \u4E3A\u5361\u7247",
-  "Enhance selected URL": "\u6E32\u67D3\u4E3A\u5361\u7247",
+  "Render as card": "\u6E32\u67D3\u4E3A\u5361\u7247",
   "Paste and enhance menu": "\u7C98\u8D34 URL \u4E3A\u5361\u7247",
-  "Enhance URL menu": "\u6E32\u67D3\u4E3A\u5361\u7247",
+  "Render as card menu": "\u6E32\u67D3\u4E3A\u5361\u7247",
   "Failed to fetch": "\u65E0\u6CD5\u83B7\u53D6\u94FE\u63A5\u6570\u636E",
   "URL copied": "URL \u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F",
   "API URL required": "\u8BF7\u5148\u914D\u7F6E API \u5730\u5740",
@@ -313,6 +315,7 @@ var DEFAULT_SETTINGS = {
   fallbackApiEnabled: true,
   debugEnabled: false,
   tpl_bilibili_video_apiUrl: "https://api.bilibili.com/x/web-interface/view",
+  tpl_youtube_oembedUrl: "https://www.youtube.com/oembed",
   tpl_x_htmlProxyUrl: "http://127.0.0.1:8080"
 };
 var ObsidianAutoCardLinkSettingTab = class extends import_obsidian2.PluginSettingTab {
@@ -379,6 +382,12 @@ var ObsidianAutoCardLinkSettingTab = class extends import_obsidian2.PluginSettin
     new import_obsidian2.Setting(containerEl).setName("Bilibili API URL").setDesc(t("API URL desc")).addText(
       (text) => text.setPlaceholder("https://api.bilibili.com/x/web-interface/view").setValue(this.plugin.settings.tpl_bilibili_video_apiUrl).onChange(async (value) => {
         this.plugin.settings.tpl_bilibili_video_apiUrl = value;
+        await this.plugin.saveSettings();
+      })
+    );
+    new import_obsidian2.Setting(containerEl).setName("YouTube oEmbed URL").setDesc(t("YouTube oEmbed URL desc")).addText(
+      (text) => text.setPlaceholder("https://www.youtube.com/oembed").setValue(this.plugin.settings.tpl_youtube_oembedUrl).onChange(async (value) => {
+        this.plugin.settings.tpl_youtube_oembedUrl = value;
         await this.plugin.saveSettings();
       })
     );
@@ -467,8 +476,9 @@ var EditorExtensions = class {
 // src/bilibili_parser.ts
 var import_obsidian3 = require("obsidian");
 var BilibiliParser = class {
-  constructor(url) {
+  constructor(url, apiUrl = "https://api.bilibili.com/x/web-interface/view") {
     this.url = url;
+    this.apiUrl = apiUrl;
   }
   static isBilibiliUrl(url) {
     try {
@@ -497,7 +507,7 @@ var BilibiliParser = class {
   async parseVideo(videoId) {
     var _a, _b, _c, _d;
     try {
-      const apiUrl = videoId.type === "bvid" ? `https://api.bilibili.com/x/web-interface/view?bvid=${videoId.id}` : `https://api.bilibili.com/x/web-interface/view?aid=${videoId.id}`;
+      const apiUrl = videoId.type === "bvid" ? `${this.apiUrl}?bvid=${videoId.id}` : `${this.apiUrl}?aid=${videoId.id}`;
       const res = await (0, import_obsidian3.requestUrl)({
         url: apiUrl,
         headers: {
@@ -1104,8 +1114,9 @@ var TwitterParser = class {
 // src/youtube_parser.ts
 var import_obsidian6 = require("obsidian");
 var YouTubeParser = class {
-  constructor(url) {
+  constructor(url, oembedUrl = "https://www.youtube.com/oembed") {
     this.url = url;
+    this.oembedUrl = oembedUrl;
   }
   static isYouTubeUrl(url) {
     try {
@@ -1143,7 +1154,7 @@ var YouTubeParser = class {
       let date;
       let oembedThumbnail;
       try {
-        const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(cleanUrl)}&format=json`;
+        const oembedUrl = `${this.oembedUrl}?url=${encodeURIComponent(cleanUrl)}&format=json`;
         const res = await (0, import_obsidian6.requestUrl)({
           url: oembedUrl,
           headers: {
@@ -1700,7 +1711,7 @@ var _CodeBlockGenerator = class {
     return codeBlockTexts.join("\n");
   }
   async fetchLinkMetadata(url) {
-    var _a, _b;
+    var _a, _b, _c, _d;
     if (!url || typeof url !== "string")
       return null;
     if (!url.match(/^https?:\/\//i)) {
@@ -1726,11 +1737,13 @@ var _CodeBlockGenerator = class {
     }
     let specialistData = null;
     if (BilibiliParser.isBilibiliUrl(url)) {
-      const bilibiliParser = new BilibiliParser(url);
+      const bilibiliApiUrl = ((_a = _CodeBlockGenerator.settings) == null ? void 0 : _a.tpl_bilibili_video_apiUrl) || "https://api.bilibili.com/x/web-interface/view";
+      const bilibiliParser = new BilibiliParser(url, bilibiliApiUrl);
       specialistData = await bilibiliParser.parse();
     }
     if (YouTubeParser.isYouTubeUrl(url)) {
-      const youTubeParser = new YouTubeParser(url);
+      const youtubeOembedUrl = ((_b = _CodeBlockGenerator.settings) == null ? void 0 : _b.tpl_youtube_oembedUrl) || "https://www.youtube.com/oembed";
+      const youTubeParser = new YouTubeParser(url, youtubeOembedUrl);
       specialistData = await youTubeParser.parse();
     }
     if (parsedUrl.hostname === "github.com" && GitHubParser.isGitHubUrl(url)) {
@@ -1739,7 +1752,7 @@ var _CodeBlockGenerator = class {
     }
     const isTwitter = TwitterParser.isTwitterUrl(url);
     if (isTwitter) {
-      const proxyUrl = ((_a = _CodeBlockGenerator.settings) == null ? void 0 : _a.tpl_x_htmlProxyUrl) || "http://127.0.0.1:8080";
+      const proxyUrl = ((_c = _CodeBlockGenerator.settings) == null ? void 0 : _c.tpl_x_htmlProxyUrl) || "http://127.0.0.1:8080";
       const twitterParser = new TwitterParser(url, proxyUrl);
       specialistData = await twitterParser.parse();
     }
@@ -1776,7 +1789,7 @@ var _CodeBlockGenerator = class {
       logGroupEnd();
       return specialistData;
     }
-    if ((_b = _CodeBlockGenerator.settings) == null ? void 0 : _b.fallbackApiEnabled) {
+    if ((_d = _CodeBlockGenerator.settings) == null ? void 0 : _d.fallbackApiEnabled) {
       result = await this.fetchFromFallbackApi(url);
       if (result) {
         this.saveToCache(url, result);
@@ -2269,7 +2282,7 @@ var ObsidianAutoCardLink = class extends import_obsidian9.Plugin {
     });
     this.addCommand({
       id: "enhance-selected-url",
-      name: t("Enhance selected URL"),
+      name: t("Render as card"),
       editorCallback: async (editor) => {
         await this.enhanceSelectedUrl(editor);
       }
@@ -2384,7 +2397,7 @@ var ObsidianAutoCardLink = class extends import_obsidian9.Plugin {
   }
   addContextMenuItems(menu) {
     menu.addItem((item) => {
-      item.setTitle(t("Enhance URL menu")).setIcon("link").onClick(async () => {
+      item.setTitle(t("Render as card menu")).setIcon("link").onClick(async () => {
         const activeView = this.app.workspace.getActiveViewOfType(import_obsidian9.MarkdownView);
         if (!activeView)
           return;

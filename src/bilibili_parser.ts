@@ -17,9 +17,11 @@ export interface BilibiliParseResult {
 
 export class BilibiliParser {
 	url: string;
+	apiUrl: string;
 
-	constructor(url: string) {
+	constructor(url: string, apiUrl: string = "https://api.bilibili.com/x/web-interface/view") {
 		this.url = url;
+		this.apiUrl = apiUrl;
 	}
 
 	static isBilibiliUrl(url: string): boolean {
@@ -53,8 +55,8 @@ export class BilibiliParser {
 		try {
 			const apiUrl =
 				videoId.type === "bvid"
-					? `https://api.bilibili.com/x/web-interface/view?bvid=${videoId.id}`
-					: `https://api.bilibili.com/x/web-interface/view?aid=${videoId.id}`;
+					? `${this.apiUrl}?bvid=${videoId.id}`
+					: `${this.apiUrl}?aid=${videoId.id}`;
 			const res = await requestUrl({
 				url: apiUrl,
 				headers: {

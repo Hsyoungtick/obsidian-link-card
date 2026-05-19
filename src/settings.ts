@@ -12,6 +12,7 @@ export interface ObsidianAutoCardLinkSettings {
 	fallbackApiEnabled: boolean;
 	debugEnabled: boolean;
 	tpl_bilibili_video_apiUrl: string;
+	tpl_youtube_oembedUrl: string;
 	tpl_x_htmlProxyUrl: string;
 }
 
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: ObsidianAutoCardLinkSettings = {
 	fallbackApiEnabled: true,
 	debugEnabled: false,
 	tpl_bilibili_video_apiUrl: "https://api.bilibili.com/x/web-interface/view",
+	tpl_youtube_oembedUrl: "https://www.youtube.com/oembed",
 	tpl_x_htmlProxyUrl: "http://127.0.0.1:8080",
 };
 
@@ -150,6 +152,19 @@ export class ObsidianAutoCardLinkSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.tpl_bilibili_video_apiUrl)
 					.onChange(async (value) => {
 						this.plugin.settings.tpl_bilibili_video_apiUrl = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("YouTube oEmbed URL")
+			.setDesc(t("YouTube oEmbed URL desc"))
+			.addText((text) =>
+				text
+					.setPlaceholder("https://www.youtube.com/oembed")
+					.setValue(this.plugin.settings.tpl_youtube_oembedUrl)
+					.onChange(async (value) => {
+						this.plugin.settings.tpl_youtube_oembedUrl = value;
 						await this.plugin.saveSettings();
 					})
 			);

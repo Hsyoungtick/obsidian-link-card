@@ -1,4 +1,4 @@
-﻿import { requestUrl } from "obsidian";
+import { requestUrl } from "obsidian";
 import { DEFAULT_USER_AGENT, formatNumberCN, formatDateFromString, log } from "./utils";
 
 export interface YouTubeParseResult {
@@ -17,9 +17,11 @@ export interface YouTubeParseResult {
 
 export class YouTubeParser {
 	url: string;
+	oembedUrl: string;
 
-	constructor(url: string) {
+	constructor(url: string, oembedUrl: string = "https://www.youtube.com/oembed") {
 		this.url = url;
+		this.oembedUrl = oembedUrl;
 	}
 
 	static isYouTubeUrl(url: string): boolean {
@@ -62,7 +64,7 @@ export class YouTubeParser {
 			let oembedThumbnail: string | undefined;
 
 			try {
-				const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(cleanUrl)}&format=json`;
+				const oembedUrl = `${this.oembedUrl}?url=${encodeURIComponent(cleanUrl)}&format=json`;
 				const res = await requestUrl({
 					url: oembedUrl,
 					headers: {

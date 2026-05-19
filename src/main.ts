@@ -45,7 +45,7 @@ export default class ObsidianAutoCardLink extends Plugin {
 
 		this.addCommand({
 			id: "enhance-selected-url",
-			name: t("Enhance selected URL"),
+			name: t("Render as card"),
 			editorCallback: async (editor: Editor) => {
 				await this.enhanceSelectedUrl(editor);
 			},
@@ -175,7 +175,7 @@ export default class ObsidianAutoCardLink extends Plugin {
 	addContextMenuItems(menu: Menu): void {
 		menu.addItem((item) => {
 			item
-				.setTitle(t("Enhance URL menu"))
+				.setTitle(t("Render as card menu"))
 				.setIcon("link")
 				.onClick(async () => {
 					const activeView =
