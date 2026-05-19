@@ -140,7 +140,7 @@ export class CodeBlockGenerator {
 			parsedUrl.hostname === "github.com" &&
 			GitHubParser.isGitHubUrl(url)
 		) {
-			const githubParser = new GitHubParser(url);
+			const githubParser = new GitHubParser(url, CodeBlockGenerator.settings?.githubCardImage ?? true);
 			specialistData = await githubParser.parse();
 		}
 

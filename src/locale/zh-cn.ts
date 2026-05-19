@@ -17,6 +17,8 @@ const zhCN: Record<string, string> = {
 	"Cache cleared": "缓存已清除",
 	"Fallback API": "备用元数据 API",
 	"Fallback API desc": "直接请求失败时使用第三方 API（Microlink）获取元数据",
+	"GitHub card image": "GitHub 卡片图片",
+	"GitHub card image desc": "使用仓库社交卡片作为图片（首次获取较慢）。关闭则使用作者头像。",
 	"Reset settings": "重置配置",
 	"Reset settings desc": "将所有配置恢复为默认值",
 	"Reset": "重置",

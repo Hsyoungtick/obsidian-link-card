@@ -18,9 +18,11 @@ export interface GitHubParseResult {
 
 export class GitHubParser {
 	url: string;
+	useCardImage: boolean;
 
-	constructor(url: string) {
+	constructor(url: string, useCardImage: boolean = true) {
 		this.url = url;
+		this.useCardImage = useCardImage;
 	}
 
 	static isGitHubUrl(url: string): boolean {
@@ -84,10 +86,12 @@ export class GitHubParser {
 			}
 			log("GitHub parse: 日期回退链: created_at(" + (data.created_at || "无") + ") → 最终选择date=" + (date || "无"));
 
-			const coverUrl = data.owner?.avatar_url || undefined;
+			const coverUrl = this.useCardImage
+				? `https://opengraph.githubassets.com/1/${owner}/${repo}`
+				: data.owner?.avatar_url || undefined;
 			const avatarUrl = data.owner?.avatar_url || undefined;
 
-			log("GitHub parse: image=owner avatar(" + (coverUrl || "无") + ")");
+			log("GitHub parse: image=" + (this.useCardImage ? "opengraph" : "avatar") + "(" + (coverUrl || "无") + ")");
 
 			const result: GitHubParseResult = {
 				url: this.url,
@@ -170,9 +174,11 @@ export class GitHubParser {
 			log("GitHub HTML: 日期回退链: datetime(" + (relativeTime?.getAttribute("datetime") || "无") + ") → 最终选择date=" + (date || "无"));
 
 			const repoInfo = GitHubParser.extractRepoInfo(this.url);
-			const coverUrl = image || (repoInfo ? `https://avatars.githubusercontent.com/${repoInfo.owner}` : undefined);
+			const coverUrl = this.useCardImage
+				? (repoInfo ? `https://opengraph.githubassets.com/1/${repoInfo.owner}/${repoInfo.repo}` : image)
+				: (image || (repoInfo ? `https://avatars.githubusercontent.com/${repoInfo.owner}` : undefined));
 
-			log("GitHub HTML: image=og:image or avatar(" + (coverUrl || "无") + ")");
+			log("GitHub HTML: image=" + (this.useCardImage ? "opengraph" : "avatar") + "(" + (coverUrl || "无") + ")");
 
 			const result: GitHubParseResult = {
 				url: this.url,

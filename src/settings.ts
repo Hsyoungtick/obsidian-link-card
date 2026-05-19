@@ -11,6 +11,7 @@ export interface ObsidianAutoCardLinkSettings {
 	cacheExpiry: number;
 	fallbackApiEnabled: boolean;
 	debugEnabled: boolean;
+	githubCardImage: boolean;
 	tpl_x_htmlProxyUrl: string;
 }
 
@@ -22,6 +23,7 @@ export const DEFAULT_SETTINGS: ObsidianAutoCardLinkSettings = {
 	cacheExpiry: 24,
 	fallbackApiEnabled: true,
 	debugEnabled: false,
+	githubCardImage: true,
 	tpl_x_htmlProxyUrl: "http://127.0.0.1:8080",
 };
 
@@ -135,6 +137,18 @@ export class ObsidianAutoCardLinkSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.fallbackApiEnabled)
 					.onChange(async (value) => {
 						this.plugin.settings.fallbackApiEnabled = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName(t("GitHub card image"))
+			.setDesc(t("GitHub card image desc"))
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.githubCardImage)
+					.onChange(async (value) => {
+						this.plugin.settings.githubCardImage = value;
 						await this.plugin.saveSettings();
 					})
 			);

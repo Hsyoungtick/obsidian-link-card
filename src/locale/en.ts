@@ -17,6 +17,8 @@ const en: Record<string, string> = {
 	"Cache cleared": "Cache cleared",
 	"Fallback API": "Fallback metadata API",
 	"Fallback API desc": "Use third-party API (Microlink) when direct fetch fails",
+	"GitHub card image": "GitHub card image",
+	"GitHub card image desc": "Use repository social card as image (slower on first load). Disable to use owner avatar instead.",
 	"Reset settings": "Reset settings",
 	"Reset settings desc": "Restore all settings to default values",
 	"Reset": "Reset",

@@ -55,6 +55,8 @@ var en = {
   "Cache cleared": "Cache cleared",
   "Fallback API": "Fallback metadata API",
   "Fallback API desc": "Use third-party API (Microlink) when direct fetch fails",
+  "GitHub card image": "GitHub card image",
+  "GitHub card image desc": "Use repository social card as image (slower on first load). Disable to use owner avatar instead.",
   "Reset settings": "Reset settings",
   "Reset settings desc": "Restore all settings to default values",
   "Reset": "Reset",
@@ -115,6 +117,8 @@ var zhCN = {
   "Cache cleared": "\u7F13\u5B58\u5DF2\u6E05\u9664",
   "Fallback API": "\u5907\u7528\u5143\u6570\u636E API",
   "Fallback API desc": "\u76F4\u63A5\u8BF7\u6C42\u5931\u8D25\u65F6\u4F7F\u7528\u7B2C\u4E09\u65B9 API\uFF08Microlink\uFF09\u83B7\u53D6\u5143\u6570\u636E",
+  "GitHub card image": "GitHub \u5361\u7247\u56FE\u7247",
+  "GitHub card image desc": "\u4F7F\u7528\u4ED3\u5E93\u793E\u4EA4\u5361\u7247\u4F5C\u4E3A\u56FE\u7247\uFF08\u9996\u6B21\u83B7\u53D6\u8F83\u6162\uFF09\u3002\u5173\u95ED\u5219\u4F7F\u7528\u4F5C\u8005\u5934\u50CF\u3002",
   "Reset settings": "\u91CD\u7F6E\u914D\u7F6E",
   "Reset settings desc": "\u5C06\u6240\u6709\u914D\u7F6E\u6062\u590D\u4E3A\u9ED8\u8BA4\u503C",
   "Reset": "\u91CD\u7F6E",
@@ -314,6 +318,7 @@ var DEFAULT_SETTINGS = {
   cacheExpiry: 24,
   fallbackApiEnabled: true,
   debugEnabled: false,
+  githubCardImage: true,
   tpl_x_htmlProxyUrl: "http://127.0.0.1:8080"
 };
 var ObsidianAutoCardLinkSettingTab = class extends import_obsidian2.PluginSettingTab {
@@ -375,6 +380,12 @@ var ObsidianAutoCardLinkSettingTab = class extends import_obsidian2.PluginSettin
     new import_obsidian2.Setting(containerEl).setName(t("Fallback API")).setDesc(t("Fallback API desc")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.fallbackApiEnabled).onChange(async (value) => {
         this.plugin.settings.fallbackApiEnabled = value;
+        await this.plugin.saveSettings();
+      })
+    );
+    new import_obsidian2.Setting(containerEl).setName(t("GitHub card image")).setDesc(t("GitHub card image desc")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.githubCardImage).onChange(async (value) => {
+        this.plugin.settings.githubCardImage = value;
         await this.plugin.saveSettings();
       })
     );
@@ -818,8 +829,9 @@ function md5(string) {
 // src/github_parser.ts
 var import_obsidian4 = require("obsidian");
 var GitHubParser = class {
-  constructor(url) {
+  constructor(url, useCardImage = true) {
     this.url = url;
+    this.useCardImage = useCardImage;
   }
   static isGitHubUrl(url) {
     const githubRegex = /^https?:\/\/(www\.)?github\.com\/[^\/]+\/[^\/]+/i;
@@ -866,9 +878,9 @@ var GitHubParser = class {
         date = formatDateFromString(data.created_at);
       }
       log("GitHub parse: \u65E5\u671F\u56DE\u9000\u94FE: created_at(" + (data.created_at || "\u65E0") + ") \u2192 \u6700\u7EC8\u9009\u62E9date=" + (date || "\u65E0"));
-      const coverUrl = ((_b = data.owner) == null ? void 0 : _b.avatar_url) || void 0;
+      const coverUrl = this.useCardImage ? `https://opengraph.githubassets.com/1/${owner}/${repo}` : ((_b = data.owner) == null ? void 0 : _b.avatar_url) || void 0;
       const avatarUrl = ((_c = data.owner) == null ? void 0 : _c.avatar_url) || void 0;
-      log("GitHub parse: image=owner avatar(" + (coverUrl || "\u65E0") + ")");
+      log("GitHub parse: image=" + (this.useCardImage ? "opengraph" : "avatar") + "(" + (coverUrl || "\u65E0") + ")");
       const result = {
         url: this.url,
         title,
@@ -936,8 +948,8 @@ var GitHubParser = class {
       }
       log("GitHub HTML: \u65E5\u671F\u56DE\u9000\u94FE: datetime(" + ((relativeTime == null ? void 0 : relativeTime.getAttribute("datetime")) || "\u65E0") + ") \u2192 \u6700\u7EC8\u9009\u62E9date=" + (date || "\u65E0"));
       const repoInfo = GitHubParser.extractRepoInfo(this.url);
-      const coverUrl = image || (repoInfo ? `https://avatars.githubusercontent.com/${repoInfo.owner}` : void 0);
-      log("GitHub HTML: image=og:image or avatar(" + (coverUrl || "\u65E0") + ")");
+      const coverUrl = this.useCardImage ? repoInfo ? `https://opengraph.githubassets.com/1/${repoInfo.owner}/${repoInfo.repo}` : image : image || (repoInfo ? `https://avatars.githubusercontent.com/${repoInfo.owner}` : void 0);
+      log("GitHub HTML: image=" + (this.useCardImage ? "opengraph" : "avatar") + "(" + (coverUrl || "\u65E0") + ")");
       const result = {
         url: this.url,
         title,
@@ -1704,7 +1716,7 @@ var _CodeBlockGenerator = class {
     return codeBlockTexts.join("\n");
   }
   async fetchLinkMetadata(url) {
-    var _a, _b;
+    var _a, _b, _c, _d;
     if (!url || typeof url !== "string")
       return null;
     if (!url.match(/^https?:\/\//i)) {
@@ -1738,12 +1750,12 @@ var _CodeBlockGenerator = class {
       specialistData = await youTubeParser.parse();
     }
     if (parsedUrl.hostname === "github.com" && GitHubParser.isGitHubUrl(url)) {
-      const githubParser = new GitHubParser(url);
+      const githubParser = new GitHubParser(url, (_b = (_a = _CodeBlockGenerator.settings) == null ? void 0 : _a.githubCardImage) != null ? _b : true);
       specialistData = await githubParser.parse();
     }
     const isTwitter = TwitterParser.isTwitterUrl(url);
     if (isTwitter) {
-      const proxyUrl = ((_a = _CodeBlockGenerator.settings) == null ? void 0 : _a.tpl_x_htmlProxyUrl) || "http://127.0.0.1:8080";
+      const proxyUrl = ((_c = _CodeBlockGenerator.settings) == null ? void 0 : _c.tpl_x_htmlProxyUrl) || "http://127.0.0.1:8080";
       const twitterParser = new TwitterParser(url, proxyUrl);
       specialistData = await twitterParser.parse();
     }
@@ -1780,7 +1792,7 @@ var _CodeBlockGenerator = class {
       logGroupEnd();
       return specialistData;
     }
-    if ((_b = _CodeBlockGenerator.settings) == null ? void 0 : _b.fallbackApiEnabled) {
+    if ((_d = _CodeBlockGenerator.settings) == null ? void 0 : _d.fallbackApiEnabled) {
       result = await this.fetchFromFallbackApi(url);
       if (result) {
         this.saveToCache(url, result);
