@@ -136,9 +136,9 @@ To auto-copy to your Vault during development, create `.devconfig.json`:
 
 ## ✨ Inspired By
 
-- [obsidian-auto-card-link](https://github.com/nekoshita/obsidian-auto-card-link) Automatically fetches metadata from URLs and converts them into card-style links
-- [obsidian-nifty-links](https://github.com/x-Ai/obsidian-nifty-links) Generates elegant, Notion-style rich link cards
-- [hexo-tag-bilibili-card](https://github.com/wherewhere/hexo-tag-bilibili-card) A Hexo plugin to insert Bilibili cards in your articles
+- [obsidian-auto-card-link](https://github.com/nekoshita/obsidian-auto-card-link): Automatically fetches metadata from URLs and converts them into card-style links
+- [obsidian-nifty-links](https://github.com/x-Ai/obsidian-nifty-links): Generates elegant, Notion-style rich link cards
+- [hexo-tag-bilibili-card](https://github.com/wherewhere/hexo-tag-bilibili-card): A Hexo plugin to insert Bilibili cards in your articles
 
 ## 🤖 Disclaimer
 

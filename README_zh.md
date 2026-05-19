@@ -136,9 +136,9 @@ pnpm build
 
 ## ✨ 灵感来源
 
-- [obsidian-auto-card-link](https://github.com/nekoshita/obsidian-auto-card-link) 自动从 URL 获取元数据并将其转换为卡片式链接
-- [obsidian-nifty-links](https://github.com/x-Ai/obsidian-nifty-links) 生成优雅的、Notion 风格的富链接卡片
-- [hexo-tag-bilibili-card](https://github.com/wherewhere/hexo-tag-bilibili-card) 一个 Hexo 插件，在你的文章中插入哔哩哔哩卡片
+- [obsidian-auto-card-link](https://github.com/nekoshita/obsidian-auto-card-link): 自动从 URL 获取元数据并将其转换为卡片式链接
+- [obsidian-nifty-links](https://github.com/x-Ai/obsidian-nifty-links): 生成优雅的、Notion 风格的富链接卡片
+- [hexo-tag-bilibili-card](https://github.com/wherewhere/hexo-tag-bilibili-card): 一个 Hexo 插件，在你的文章中插入哔哩哔哩卡片
 
 ## 🤖 免责声明
 
