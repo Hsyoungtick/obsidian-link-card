@@ -63,9 +63,9 @@ var en = {
   "URL pattern desc": "Regex pattern to match for this template",
   "API URL": "API URL",
   "API URL desc": "Official API endpoint (leave empty to skip API)",
-  "YouTube oEmbed URL desc": "YouTube oEmbed endpoint for fetching video metadata",
   "HTML proxy URL": "HTML proxy URL",
-  "HTML proxy desc": "Requires a nitter instance for X/Twitter. See: https://github.com/Hsyoungtick/twitter-gallery/blob/main/docs/nitter_config.md",
+  "HTML proxy desc": "Requires a nitter instance for X/Twitter.",
+  "Nitter doc link": "Nitter deployment guide",
   "Test": "Test",
   "Extract config": "Extract Configuration",
   "Bilibili video config": "Bilibili Video Config",
@@ -123,9 +123,9 @@ var zhCN = {
   "URL pattern desc": "\u5339\u914D\u6B64\u6A21\u677F\u7684\u6B63\u5219\u8868\u8FBE\u5F0F",
   "API URL": "API \u5730\u5740",
   "API URL desc": "\u7F51\u7AD9\u5B98\u65B9\u7ED9\u51FA\u7684 API \u63A5\u53E3\u5730\u5740\uFF08\u7559\u7A7A\u5219\u4E0D\u4F7F\u7528 API\uFF09",
-  "YouTube oEmbed URL desc": "YouTube oEmbed \u63A5\u53E3\u5730\u5740\uFF0C\u7528\u4E8E\u83B7\u53D6\u89C6\u9891\u5143\u6570\u636E",
   "HTML proxy URL": "HTML \u4EE3\u7406\u5730\u5740",
-  "HTML proxy desc": "\u83B7\u53D6 X/Twitter \u4FE1\u606F\u9700\u8981\u90E8\u7F72 nitter\uFF0C\u53C2\u8003\u6587\u6863\uFF1Ahttps://github.com/Hsyoungtick/twitter-gallery/blob/main/docs/nitter_config_zh.md",
+  "HTML proxy desc": "\u83B7\u53D6 X/Twitter \u4FE1\u606F\u9700\u8981\u90E8\u7F72 nitter",
+  "Nitter doc link": "Nitter \u90E8\u7F72\u6587\u6863",
   "Test": "\u6D4B\u8BD5",
   "Extract config": "\u63D0\u53D6\u914D\u7F6E",
   "Bilibili video config": "B \u7AD9\u89C6\u9891\u914D\u7F6E",
@@ -314,8 +314,6 @@ var DEFAULT_SETTINGS = {
   cacheExpiry: 24,
   fallbackApiEnabled: true,
   debugEnabled: false,
-  tpl_bilibili_video_apiUrl: "https://api.bilibili.com/x/web-interface/view",
-  tpl_youtube_oembedUrl: "https://www.youtube.com/oembed",
   tpl_x_htmlProxyUrl: "http://127.0.0.1:8080"
 };
 var ObsidianAutoCardLinkSettingTab = class extends import_obsidian2.PluginSettingTab {
@@ -324,6 +322,7 @@ var ObsidianAutoCardLinkSettingTab = class extends import_obsidian2.PluginSettin
     this.plugin = plugin;
   }
   display() {
+    var _a;
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "Link Card" });
@@ -379,24 +378,18 @@ var ObsidianAutoCardLinkSettingTab = class extends import_obsidian2.PluginSettin
         await this.plugin.saveSettings();
       })
     );
-    new import_obsidian2.Setting(containerEl).setName("Bilibili API URL").setDesc(t("API URL desc")).addText(
-      (text) => text.setPlaceholder("https://api.bilibili.com/x/web-interface/view").setValue(this.plugin.settings.tpl_bilibili_video_apiUrl).onChange(async (value) => {
-        this.plugin.settings.tpl_bilibili_video_apiUrl = value;
-        await this.plugin.saveSettings();
-      })
-    );
-    new import_obsidian2.Setting(containerEl).setName("YouTube oEmbed URL").setDesc(t("YouTube oEmbed URL desc")).addText(
-      (text) => text.setPlaceholder("https://www.youtube.com/oembed").setValue(this.plugin.settings.tpl_youtube_oembedUrl).onChange(async (value) => {
-        this.plugin.settings.tpl_youtube_oembedUrl = value;
-        await this.plugin.saveSettings();
-      })
-    );
     new import_obsidian2.Setting(containerEl).setName("X/Twitter proxy URL").setDesc(t("HTML proxy desc")).addText(
       (text) => text.setPlaceholder("http://127.0.0.1:8080").setValue(this.plugin.settings.tpl_x_htmlProxyUrl).onChange(async (value) => {
         this.plugin.settings.tpl_x_htmlProxyUrl = value;
         await this.plugin.saveSettings();
       })
     );
+    const nitterDocUrl = import_obsidian2.moment.locale().startsWith("zh") ? "https://github.com/Hsyoungtick/twitter-gallery/blob/main/docs/nitter_config_zh.md" : "https://github.com/Hsyoungtick/twitter-gallery/blob/main/docs/nitter_config.md";
+    (_a = containerEl.querySelector(".setting-item:last-child .setting-item-description")) == null ? void 0 : _a.createEl("a", {
+      href: nitterDocUrl,
+      text: t("Nitter doc link"),
+      attr: { target: "_blank" }
+    });
     new import_obsidian2.Setting(containerEl).setName(t("Reset settings")).setDesc(t("Reset settings desc")).addButton(
       (button) => button.setButtonText(t("Reset")).onClick(async () => {
         Object.assign(this.plugin.settings, DEFAULT_SETTINGS);
@@ -1711,7 +1704,7 @@ var _CodeBlockGenerator = class {
     return codeBlockTexts.join("\n");
   }
   async fetchLinkMetadata(url) {
-    var _a, _b, _c, _d;
+    var _a, _b;
     if (!url || typeof url !== "string")
       return null;
     if (!url.match(/^https?:\/\//i)) {
@@ -1737,13 +1730,11 @@ var _CodeBlockGenerator = class {
     }
     let specialistData = null;
     if (BilibiliParser.isBilibiliUrl(url)) {
-      const bilibiliApiUrl = ((_a = _CodeBlockGenerator.settings) == null ? void 0 : _a.tpl_bilibili_video_apiUrl) || "https://api.bilibili.com/x/web-interface/view";
-      const bilibiliParser = new BilibiliParser(url, bilibiliApiUrl);
+      const bilibiliParser = new BilibiliParser(url);
       specialistData = await bilibiliParser.parse();
     }
     if (YouTubeParser.isYouTubeUrl(url)) {
-      const youtubeOembedUrl = ((_b = _CodeBlockGenerator.settings) == null ? void 0 : _b.tpl_youtube_oembedUrl) || "https://www.youtube.com/oembed";
-      const youTubeParser = new YouTubeParser(url, youtubeOembedUrl);
+      const youTubeParser = new YouTubeParser(url);
       specialistData = await youTubeParser.parse();
     }
     if (parsedUrl.hostname === "github.com" && GitHubParser.isGitHubUrl(url)) {
@@ -1752,7 +1743,7 @@ var _CodeBlockGenerator = class {
     }
     const isTwitter = TwitterParser.isTwitterUrl(url);
     if (isTwitter) {
-      const proxyUrl = ((_c = _CodeBlockGenerator.settings) == null ? void 0 : _c.tpl_x_htmlProxyUrl) || "http://127.0.0.1:8080";
+      const proxyUrl = ((_a = _CodeBlockGenerator.settings) == null ? void 0 : _a.tpl_x_htmlProxyUrl) || "http://127.0.0.1:8080";
       const twitterParser = new TwitterParser(url, proxyUrl);
       specialistData = await twitterParser.parse();
     }
@@ -1789,7 +1780,7 @@ var _CodeBlockGenerator = class {
       logGroupEnd();
       return specialistData;
     }
-    if ((_d = _CodeBlockGenerator.settings) == null ? void 0 : _d.fallbackApiEnabled) {
+    if ((_b = _CodeBlockGenerator.settings) == null ? void 0 : _b.fallbackApiEnabled) {
       result = await this.fetchFromFallbackApi(url);
       if (result) {
         this.saveToCache(url, result);

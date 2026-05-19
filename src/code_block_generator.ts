@@ -127,14 +127,12 @@ export class CodeBlockGenerator {
 		let specialistData: Record<string, unknown> | null = null;
 
 		if (BilibiliParser.isBilibiliUrl(url)) {
-			const bilibiliApiUrl = CodeBlockGenerator.settings?.tpl_bilibili_video_apiUrl || "https://api.bilibili.com/x/web-interface/view";
-			const bilibiliParser = new BilibiliParser(url, bilibiliApiUrl);
+			const bilibiliParser = new BilibiliParser(url);
 			specialistData = await bilibiliParser.parse();
 		}
 
 		if (YouTubeParser.isYouTubeUrl(url)) {
-			const youtubeOembedUrl = CodeBlockGenerator.settings?.tpl_youtube_oembedUrl || "https://www.youtube.com/oembed";
-			const youTubeParser = new YouTubeParser(url, youtubeOembedUrl);
+			const youTubeParser = new YouTubeParser(url);
 			specialistData = await youTubeParser.parse();
 		}
 

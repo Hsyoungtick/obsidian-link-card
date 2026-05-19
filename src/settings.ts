@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Notice, Setting } from "obsidian";
+import { App, PluginSettingTab, Notice, Setting, moment } from "obsidian";
 import { t } from "./i18n";
 import { setDebugEnabled } from "./utils";
 import type ObsidianAutoCardLink from "./main";
@@ -11,8 +11,6 @@ export interface ObsidianAutoCardLinkSettings {
 	cacheExpiry: number;
 	fallbackApiEnabled: boolean;
 	debugEnabled: boolean;
-	tpl_bilibili_video_apiUrl: string;
-	tpl_youtube_oembedUrl: string;
 	tpl_x_htmlProxyUrl: string;
 }
 
@@ -24,8 +22,6 @@ export const DEFAULT_SETTINGS: ObsidianAutoCardLinkSettings = {
 	cacheExpiry: 24,
 	fallbackApiEnabled: true,
 	debugEnabled: false,
-	tpl_bilibili_video_apiUrl: "https://api.bilibili.com/x/web-interface/view",
-	tpl_youtube_oembedUrl: "https://www.youtube.com/oembed",
 	tpl_x_htmlProxyUrl: "http://127.0.0.1:8080",
 };
 
@@ -144,32 +140,6 @@ export class ObsidianAutoCardLinkSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Bilibili API URL")
-			.setDesc(t("API URL desc"))
-			.addText((text) =>
-				text
-					.setPlaceholder("https://api.bilibili.com/x/web-interface/view")
-					.setValue(this.plugin.settings.tpl_bilibili_video_apiUrl)
-					.onChange(async (value) => {
-						this.plugin.settings.tpl_bilibili_video_apiUrl = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(containerEl)
-			.setName("YouTube oEmbed URL")
-			.setDesc(t("YouTube oEmbed URL desc"))
-			.addText((text) =>
-				text
-					.setPlaceholder("https://www.youtube.com/oembed")
-					.setValue(this.plugin.settings.tpl_youtube_oembedUrl)
-					.onChange(async (value) => {
-						this.plugin.settings.tpl_youtube_oembedUrl = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(containerEl)
 			.setName("X/Twitter proxy URL")
 			.setDesc(t("HTML proxy desc"))
 			.addText((text) =>
@@ -181,6 +151,14 @@ export class ObsidianAutoCardLinkSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+		const nitterDocUrl = moment.locale().startsWith("zh")
+			? "https://github.com/Hsyoungtick/twitter-gallery/blob/main/docs/nitter_config_zh.md"
+			: "https://github.com/Hsyoungtick/twitter-gallery/blob/main/docs/nitter_config.md";
+		containerEl.querySelector(".setting-item:last-child .setting-item-description")?.createEl("a", {
+			href: nitterDocUrl,
+			text: t("Nitter doc link"),
+			attr: { target: "_blank" },
+		});
 
 		new Setting(containerEl)
 			.setName(t("Reset settings"))
