@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "node esbuild.config.mjs production",
-    "version": "node version-bump.mjs"
+    "version": "node version-bump.mjs",
+    "release": "npm version patch --tag-version-prefix \"\" --no-git-tag-version && git add . && git commit -m \"chore: release v$(node -p \"require('./package.json').version\")\" && git tag $(node -p \"require('./package.json').version\") && git push && git push --tags"
   },
   "keywords": [],
   "author": "Hsyoungtick",
