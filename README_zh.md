@@ -114,6 +114,9 @@ pnpm dev
 
 # 生产构建
 pnpm build
+
+# 发布新版本
+pnpm release
 ```
 
 开发时如需自动复制到 Vault，创建 `.devconfig.json`：

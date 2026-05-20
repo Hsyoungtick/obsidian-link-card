@@ -114,6 +114,9 @@ pnpm dev
 
 # Production build
 pnpm build
+
+# Release new version
+pnpm release
 ```
 
 To auto-copy to your Vault during development, create `.devconfig.json`:
