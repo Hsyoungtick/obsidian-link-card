@@ -1,12 +1,11 @@
 {
 	"name": "obsidian-link-card",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Automatically fetches metadata from a url and makes it as a card-styled link",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "node esbuild.config.mjs production",
-		"version": "node version-bump.mjs",
 		"release": "node release.mjs"
 	},
 	"keywords": [],

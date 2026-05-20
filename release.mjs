@@ -27,6 +27,7 @@ console.log(`manifest.json 和 versions.json 已更新: ${newVersion}`);
 run("git add .");
 run(`git commit -m "chore: release ${newVersion}"`);
 run(`git tag ${newVersion}`);
+run("git pull --rebase");
 run("git push");
 run("git push --tags");
 
