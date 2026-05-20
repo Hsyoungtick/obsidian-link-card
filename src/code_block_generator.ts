@@ -5,7 +5,7 @@ import { GitHubParser } from "./github_parser";
 import { TwitterParser } from "./twitter_parser";
 import { YouTubeParser } from "./youtube_parser";
 import { LinkMetadataParser } from "./link_metadata_parser";
-import { MetadataCache } from "./cache";
+import { MetadataCache, ImageCache } from "./cache";
 import { ObsidianAutoCardLinkSettings } from "./settings";
 import { t } from "./i18n";
 import { DEFAULT_USER_AGENT, log, logGroupStart, logGroupEnd } from "./utils";
@@ -30,6 +30,7 @@ export class CodeBlockGenerator {
 	editor: Editor;
 	static settings: ObsidianAutoCardLinkSettings | null = null;
 	static cache: MetadataCache | null = null;
+	static imageCache: ImageCache | null = null;
 
 	constructor(editor: Editor) {
 		this.editor = editor;
@@ -58,6 +59,8 @@ export class CodeBlockGenerator {
 			this.editor.replaceRange(selectedText || url, startPos, endPos);
 			return;
 		}
+
+		await this.cacheImages(linkMetadata);
 
 		this.editor.replaceRange(
 			this.genCodeBlock(linkMetadata),
@@ -259,6 +262,21 @@ export class CodeBlockGenerator {
 	saveToCache(url: string, data: Record<string, unknown>): void {
 		if (CodeBlockGenerator.cache) {
 			CodeBlockGenerator.cache.set(url, data);
+		}
+	}
+
+	async cacheImages(metadata: Record<string, unknown>): Promise<void> {
+		if (!CodeBlockGenerator.imageCache?.isEnabled()) return;
+
+		const imageFields = ["image", "avatar"];
+		for (const field of imageFields) {
+			const value = metadata[field];
+			if (typeof value === "string" && value.match(/^https?:\/\//i)) {
+				const filename = await CodeBlockGenerator.imageCache.cacheImage(value);
+				if (filename) {
+					metadata[field] = `[[${filename}]]`;
+				}
+			}
 		}
 	}
 

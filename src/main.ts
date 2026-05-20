@@ -6,7 +6,7 @@ import {
 } from "./settings";
 import { CodeBlockGenerator } from "./code_block_generator";
 import { CodeBlockProcessor } from "./code_block_processor";
-import { MetadataCache } from "./cache";
+import { MetadataCache, ImageCache } from "./cache";
 import { CheckIf } from "./checkif";
 import { t } from "./i18n";
 import { setDebugEnabled, log } from "./utils";
@@ -14,6 +14,7 @@ import { setDebugEnabled, log } from "./utils";
 export default class ObsidianAutoCardLink extends Plugin {
 	settings: ObsidianAutoCardLinkSettings;
 	cache: MetadataCache;
+	imageCache: ImageCache;
 
 	async onload() {
 		await this.loadSettings();
@@ -26,9 +27,18 @@ export default class ObsidianAutoCardLink extends Plugin {
 		const cacheEntries = (storedData?.["auto-card-link-cache"] as Record<string, import("./cache").CacheEntry> | null) || null;
 		this.cache.fromJSON(cacheEntries);
 
+		this.imageCache = new ImageCache(
+			this.app,
+			this.manifest.dir ?? "",
+			this.settings.imageCacheEnabled
+		);
+		await this.imageCache.loadUrlMap();
+
 		CodeBlockGenerator.settings = this.settings;
 		CodeBlockGenerator.cache = this.cache;
+		CodeBlockGenerator.imageCache = this.imageCache;
 		CodeBlockProcessor.settings = this.settings;
+		CodeBlockProcessor.imageCache = this.imageCache;
 
 		this.registerMarkdownCodeBlockProcessor("cardlink", async (source, el) => {
 			const processor = new CodeBlockProcessor(this.app);

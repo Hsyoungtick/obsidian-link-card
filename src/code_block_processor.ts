@@ -8,6 +8,7 @@ import {
 import { YamlParseError, NoRequiredParamsError } from "./errors";
 import { CheckIf } from "./checkif";
 import { ObsidianAutoCardLinkSettings } from "./settings";
+import { ImageCache } from "./cache";
 import { t } from "./i18n";
 import { ICON_PLAY, ICON_STAR, ICON_DATE } from "./icons";
 
@@ -64,6 +65,7 @@ function getCardTheme(data: CardData): CardTheme {
 export class CodeBlockProcessor {
 	app: App;
 	static settings: ObsidianAutoCardLinkSettings | null = null;
+	static imageCache: ImageCache | null = null;
 
 	constructor(app: App) {
 		this.app = app;
@@ -72,7 +74,7 @@ export class CodeBlockProcessor {
 	async run(source: string, el: HTMLElement): Promise<void> {
 		try {
 			const data = this.parseLinkMetadataFromYaml(source);
-			el.appendChild(this.genLinkEl(data));
+			el.appendChild(await this.genLinkEl(data));
 		} catch (error) {
 			if (error instanceof NoRequiredParamsError) {
 				el.appendChild(this.genErrorEl(error.message));
@@ -150,9 +152,19 @@ export class CodeBlockProcessor {
 		return containerEl;
 	}
 
-	resolveImageUrl(url: string | undefined): string {
+	async resolveImageUrl(url: string | undefined): Promise<string> {
 		if (!url) return "";
 		if (url.startsWith("[[") && url.endsWith("]]")) {
+			const filename = url.slice(2, -2);
+
+			if (CodeBlockProcessor.imageCache) {
+				const cachedPath = await CodeBlockProcessor.imageCache.getCachedResourcePath(filename);
+				if (cachedPath) return cachedPath;
+
+				const originalUrl = CodeBlockProcessor.imageCache.getOriginalUrl(filename);
+				if (originalUrl) return originalUrl;
+			}
+
 			return this.getLocalImagePath(url);
 		}
 		if (!CheckIf.isUrl(url)) {
@@ -161,7 +173,7 @@ export class CodeBlockProcessor {
 		return url;
 	}
 
-	genLinkEl(data: CardData): HTMLElement {
+	async genLinkEl(data: CardData): Promise<HTMLElement> {
 		const theme = getCardTheme(data);
 		const isTwitter = data.host?.includes("x.com") || data.host?.includes("twitter.com");
 		const usedRenderFields: string[] = [];
@@ -191,7 +203,7 @@ export class CodeBlockProcessor {
 			coverBox.addClass("cover-box");
 			cardEl.appendChild(coverBox);
 
-			const resolvedImage = this.resolveImageUrl(data.image);
+			const resolvedImage = await this.resolveImageUrl(data.image);
 			const coverImg = document.createElement("img");
 			coverImg.addClass("cover-img");
 			coverImg.setAttr("src", resolvedImage);
@@ -310,9 +322,10 @@ export class CodeBlockProcessor {
 		const avatarSrc = data.avatar;
 		if (avatarSrc) {
 			usedRenderFields.push("avatar");
+			const resolvedAvatar = await this.resolveImageUrl(avatarSrc);
 			const img = document.createElement("img");
 			img.addClass(data.avatarIsFavicon ? "favicon-icon" : "avatar-icon");
-			img.setAttr("src", avatarSrc);
+			img.setAttr("src", resolvedAvatar);
 			img.setAttr("draggable", "false");
 			img.onerror = () => {
 				img.remove();

@@ -9,6 +9,7 @@ export interface ObsidianAutoCardLinkSettings {
 	followColorScheme: boolean;
 	cacheEnabled: boolean;
 	cacheExpiry: number;
+	imageCacheEnabled: boolean;
 	fallbackApiEnabled: boolean;
 	debugEnabled: boolean;
 	githubCardImage: boolean;
@@ -21,6 +22,7 @@ export const DEFAULT_SETTINGS: ObsidianAutoCardLinkSettings = {
 	followColorScheme: true,
 	cacheEnabled: false,
 	cacheExpiry: 24,
+	imageCacheEnabled: false,
 	fallbackApiEnabled: true,
 	debugEnabled: false,
 	githubCardImage: true,
@@ -91,8 +93,8 @@ export class ObsidianAutoCardLinkSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName(t("Cache enabled"))
-			.setDesc(t("Cache enabled desc"))
+			.setName(t("Metadata cache"))
+			.setDesc(t("Metadata cache desc"))
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.cacheEnabled)
@@ -119,13 +121,52 @@ export class ObsidianAutoCardLinkSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName(t("Clear cache"))
-			.setDesc(t("Clear cache desc"))
+			.setName(t("Clear metadata cache"))
+			.setDesc(t("Clear metadata cache desc"))
 			.addButton((button) =>
 				button.setButtonText(t("Clear")).onClick(async () => {
 					this.plugin.cache.clear();
 					await this.plugin.saveSettings();
-					new Notice(t("Cache cleared"));
+					new Notice(t("Metadata cache cleared"));
+				})
+			);
+
+		new Setting(containerEl)
+			.setName(t("Image cache"))
+			.setDesc(t("Image cache desc"))
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.imageCacheEnabled)
+					.onChange(async (value) => {
+						this.plugin.settings.imageCacheEnabled = value;
+						this.plugin.imageCache.setEnabled(value);
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName(t("Open cache folder"))
+			.setDesc(t("Open cache folder desc"))
+			.addButton((button) =>
+				button.setButtonText(t("Open cache folder")).onClick(async () => {
+					try {
+						const absolutePath = this.plugin.imageCache.getAbsoluteCacheDir();
+						// @ts-ignore
+						const { shell } = window.require("electron");
+						await shell.openPath(absolutePath);
+					} catch {
+						new Notice("Failed to open cache folder");
+					}
+				})
+			);
+
+		new Setting(containerEl)
+			.setName(t("Clear image cache"))
+			.setDesc(t("Clear image cache desc"))
+			.addButton((button) =>
+				button.setButtonText(t("Clear")).onClick(async () => {
+					await this.plugin.imageCache.clear();
+					new Notice(t("Image cache cleared"));
 				})
 			);
 

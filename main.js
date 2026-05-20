@@ -27,7 +27,7 @@ __export(main_exports, {
   default: () => ObsidianAutoCardLink
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian9 = require("obsidian");
+var import_obsidian10 = require("obsidian");
 
 // src/settings.ts
 var import_obsidian2 = require("obsidian");
@@ -45,14 +45,21 @@ var en = {
   "Follow color scheme desc": "Card follows system day/night mode (disable to always use light mode)",
   "Debug mode": "Debug mode",
   "Debug mode desc": "Output detailed parsing logs to the developer console (requires reload)",
-  "Cache enabled": "Enable cache",
-  "Cache enabled desc": "Cache fetched metadata to avoid re-fetching the same URL",
+  "Metadata cache": "Metadata cache",
+  "Metadata cache desc": "Cache fetched metadata to avoid re-fetching the same URL",
   "Cache expiry": "Cache expiry (hours)",
   "Cache expiry desc": "How long to keep cached metadata (in hours)",
-  "Clear cache": "Clear cache",
-  "Clear cache desc": "Clear all cached link metadata",
+  "Clear metadata cache": "Clear metadata cache",
+  "Clear metadata cache desc": "Clear all cached link metadata",
   "Clear": "Clear",
-  "Cache cleared": "Cache cleared",
+  "Metadata cache cleared": "Metadata cache cleared",
+  "Image cache": "Image cache",
+  "Image cache desc": "Download all card images to local cache, cards will use local images",
+  "Open cache folder": "Open cache folder",
+  "Open cache folder desc": "Open the image cache folder in file explorer",
+  "Clear image cache": "Clear image cache",
+  "Clear image cache desc": "Delete all cached images from local storage",
+  "Image cache cleared": "Image cache cleared",
   "Fallback API": "Fallback metadata API",
   "Fallback API desc": "Use third-party API (Microlink) when direct fetch fails",
   "GitHub card image": "GitHub card image",
@@ -107,14 +114,21 @@ var zhCN = {
   "Follow color scheme desc": "\u5361\u7247\u662F\u5426\u8DDF\u968F\u7CFB\u7EDF\u65E5\u591C\u6A21\u5F0F\u53D8\u5316\u989C\u8272\uFF08\u5173\u95ED\u5219\u59CB\u7EC8\u4F7F\u7528\u6D45\u8272\u6A21\u5F0F\uFF09",
   "Debug mode": "\u8C03\u8BD5\u6A21\u5F0F",
   "Debug mode desc": "\u5728\u5F00\u53D1\u8005\u63A7\u5236\u53F0\u8F93\u51FA\u8BE6\u7EC6\u89E3\u6790\u65E5\u5FD7\uFF08\u9700\u8981\u91CD\u65B0\u52A0\u8F7D\uFF09",
-  "Cache enabled": "\u542F\u7528\u7F13\u5B58",
-  "Cache enabled desc": "\u7F13\u5B58\u5DF2\u83B7\u53D6\u7684\u5143\u6570\u636E\uFF0C\u907F\u514D\u91CD\u590D\u8BF7\u6C42\u76F8\u540C URL",
+  "Metadata cache": "\u5143\u6570\u636E\u7F13\u5B58",
+  "Metadata cache desc": "\u7F13\u5B58\u5DF2\u83B7\u53D6\u7684\u5143\u6570\u636E\uFF0C\u907F\u514D\u91CD\u590D\u8BF7\u6C42\u76F8\u540C URL",
   "Cache expiry": "\u7F13\u5B58\u8FC7\u671F\u65F6\u95F4\uFF08\u5C0F\u65F6\uFF09",
   "Cache expiry desc": "\u7F13\u5B58\u5143\u6570\u636E\u7684\u4FDD\u7559\u65F6\u957F\uFF08\u5355\u4F4D\uFF1A\u5C0F\u65F6\uFF09",
-  "Clear cache": "\u6E05\u9664\u7F13\u5B58",
-  "Clear cache desc": "\u6E05\u9664\u6240\u6709\u5DF2\u7F13\u5B58\u7684\u94FE\u63A5\u5143\u6570\u636E",
+  "Clear metadata cache": "\u6E05\u9664\u5143\u6570\u636E\u7F13\u5B58",
+  "Clear metadata cache desc": "\u6E05\u9664\u6240\u6709\u5DF2\u7F13\u5B58\u7684\u94FE\u63A5\u5143\u6570\u636E",
   "Clear": "\u6E05\u9664",
-  "Cache cleared": "\u7F13\u5B58\u5DF2\u6E05\u9664",
+  "Metadata cache cleared": "\u5143\u6570\u636E\u7F13\u5B58\u5DF2\u6E05\u9664",
+  "Image cache": "\u56FE\u7247\u7F13\u5B58",
+  "Image cache desc": "\u5C06\u6240\u6709\u56FE\u7247\u4E0B\u8F7D\u5230\u672C\u5730\u7F13\u5B58\uFF0C\u5361\u7247\u5C06\u4F7F\u7528\u672C\u5730\u56FE\u7247",
+  "Open cache folder": "\u6253\u5F00\u7F13\u5B58\u6587\u4EF6\u5939",
+  "Open cache folder desc": "\u5728\u6587\u4EF6\u8D44\u6E90\u7BA1\u7406\u5668\u4E2D\u6253\u5F00\u56FE\u7247\u7F13\u5B58\u6587\u4EF6\u5939",
+  "Clear image cache": "\u6E05\u9664\u56FE\u7247\u7F13\u5B58",
+  "Clear image cache desc": "\u5220\u9664\u6240\u6709\u672C\u5730\u7F13\u5B58\u7684\u56FE\u7247",
+  "Image cache cleared": "\u56FE\u7247\u7F13\u5B58\u5DF2\u6E05\u9664",
   "Fallback API": "\u5907\u7528\u5143\u6570\u636E API",
   "Fallback API desc": "\u76F4\u63A5\u8BF7\u6C42\u5931\u8D25\u65F6\u4F7F\u7528\u7B2C\u4E09\u65B9 API\uFF08Microlink\uFF09\u83B7\u53D6\u5143\u6570\u636E",
   "GitHub card image": "GitHub \u5361\u7247\u56FE\u7247",
@@ -316,6 +330,7 @@ var DEFAULT_SETTINGS = {
   followColorScheme: true,
   cacheEnabled: false,
   cacheExpiry: 24,
+  imageCacheEnabled: false,
   fallbackApiEnabled: true,
   debugEnabled: false,
   githubCardImage: true,
@@ -356,7 +371,7 @@ var ObsidianAutoCardLinkSettingTab = class extends import_obsidian2.PluginSettin
         await this.plugin.saveSettings();
       })
     );
-    new import_obsidian2.Setting(containerEl).setName(t("Cache enabled")).setDesc(t("Cache enabled desc")).addToggle(
+    new import_obsidian2.Setting(containerEl).setName(t("Metadata cache")).setDesc(t("Metadata cache desc")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.cacheEnabled).onChange(async (value) => {
         this.plugin.settings.cacheEnabled = value;
         this.plugin.cache.setEnabled(value);
@@ -370,11 +385,35 @@ var ObsidianAutoCardLinkSettingTab = class extends import_obsidian2.PluginSettin
         await this.plugin.saveSettings();
       })
     );
-    new import_obsidian2.Setting(containerEl).setName(t("Clear cache")).setDesc(t("Clear cache desc")).addButton(
+    new import_obsidian2.Setting(containerEl).setName(t("Clear metadata cache")).setDesc(t("Clear metadata cache desc")).addButton(
       (button) => button.setButtonText(t("Clear")).onClick(async () => {
         this.plugin.cache.clear();
         await this.plugin.saveSettings();
-        new import_obsidian2.Notice(t("Cache cleared"));
+        new import_obsidian2.Notice(t("Metadata cache cleared"));
+      })
+    );
+    new import_obsidian2.Setting(containerEl).setName(t("Image cache")).setDesc(t("Image cache desc")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.imageCacheEnabled).onChange(async (value) => {
+        this.plugin.settings.imageCacheEnabled = value;
+        this.plugin.imageCache.setEnabled(value);
+        await this.plugin.saveSettings();
+      })
+    );
+    new import_obsidian2.Setting(containerEl).setName(t("Open cache folder")).setDesc(t("Open cache folder desc")).addButton(
+      (button) => button.setButtonText(t("Open cache folder")).onClick(async () => {
+        try {
+          const absolutePath = this.plugin.imageCache.getAbsoluteCacheDir();
+          const { shell } = window.require("electron");
+          await shell.openPath(absolutePath);
+        } catch (e) {
+          new import_obsidian2.Notice("Failed to open cache folder");
+        }
+      })
+    );
+    new import_obsidian2.Setting(containerEl).setName(t("Clear image cache")).setDesc(t("Clear image cache desc")).addButton(
+      (button) => button.setButtonText(t("Clear")).onClick(async () => {
+        await this.plugin.imageCache.clear();
+        new import_obsidian2.Notice(t("Image cache cleared"));
       })
     );
     new import_obsidian2.Setting(containerEl).setName(t("Fallback API")).setDesc(t("Fallback API desc")).addToggle(
@@ -1687,6 +1726,7 @@ var _CodeBlockGenerator = class {
       this.editor.replaceRange(selectedText || url, startPos, endPos);
       return;
     }
+    await this.cacheImages(linkMetadata);
     this.editor.replaceRange(
       this.genCodeBlock(linkMetadata),
       startPos,
@@ -1853,6 +1893,21 @@ var _CodeBlockGenerator = class {
       _CodeBlockGenerator.cache.set(url, data);
     }
   }
+  async cacheImages(metadata) {
+    var _a;
+    if (!((_a = _CodeBlockGenerator.imageCache) == null ? void 0 : _a.isEnabled()))
+      return;
+    const imageFields = ["image", "avatar"];
+    for (const field of imageFields) {
+      const value = metadata[field];
+      if (typeof value === "string" && value.match(/^https?:\/\//i)) {
+        const filename = await _CodeBlockGenerator.imageCache.cacheImage(value);
+        if (filename) {
+          metadata[field] = `[[${filename}]]`;
+        }
+      }
+    }
+  }
   createBlockHash() {
     let result = "";
     const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -1868,6 +1923,7 @@ var _CodeBlockGenerator = class {
 var CodeBlockGenerator = _CodeBlockGenerator;
 CodeBlockGenerator.settings = null;
 CodeBlockGenerator.cache = null;
+CodeBlockGenerator.imageCache = null;
 
 // src/code_block_processor.ts
 var import_obsidian8 = require("obsidian");
@@ -1931,7 +1987,7 @@ var _CodeBlockProcessor = class {
   async run(source, el) {
     try {
       const data = this.parseLinkMetadataFromYaml(source);
-      el.appendChild(this.genLinkEl(data));
+      el.appendChild(await this.genLinkEl(data));
     } catch (error) {
       if (error instanceof NoRequiredParamsError) {
         el.appendChild(this.genErrorEl(error.message));
@@ -1997,10 +2053,19 @@ var _CodeBlockProcessor = class {
     containerEl.appendChild(spanEl);
     return containerEl;
   }
-  resolveImageUrl(url) {
+  async resolveImageUrl(url) {
     if (!url)
       return "";
     if (url.startsWith("[[") && url.endsWith("]]")) {
+      const filename = url.slice(2, -2);
+      if (_CodeBlockProcessor.imageCache) {
+        const cachedPath = await _CodeBlockProcessor.imageCache.getCachedResourcePath(filename);
+        if (cachedPath)
+          return cachedPath;
+        const originalUrl = _CodeBlockProcessor.imageCache.getOriginalUrl(filename);
+        if (originalUrl)
+          return originalUrl;
+      }
       return this.getLocalImagePath(url);
     }
     if (!CheckIf.isUrl(url)) {
@@ -2008,7 +2073,7 @@ var _CodeBlockProcessor = class {
     }
     return url;
   }
-  genLinkEl(data) {
+  async genLinkEl(data) {
     var _a, _b, _c;
     const theme = getCardTheme(data);
     const isTwitter = ((_a = data.host) == null ? void 0 : _a.includes("x.com")) || ((_b = data.host) == null ? void 0 : _b.includes("twitter.com"));
@@ -2034,7 +2099,7 @@ var _CodeBlockProcessor = class {
       const coverBox = document.createElement("div");
       coverBox.addClass("cover-box");
       cardEl.appendChild(coverBox);
-      const resolvedImage = this.resolveImageUrl(data.image);
+      const resolvedImage = await this.resolveImageUrl(data.image);
       const coverImg = document.createElement("img");
       coverImg.addClass("cover-img");
       coverImg.setAttr("src", resolvedImage);
@@ -2144,9 +2209,10 @@ var _CodeBlockProcessor = class {
     const avatarSrc = data.avatar;
     if (avatarSrc) {
       usedRenderFields.push("avatar");
+      const resolvedAvatar = await this.resolveImageUrl(avatarSrc);
       const img = document.createElement("img");
       img.addClass(data.avatarIsFavicon ? "favicon-icon" : "avatar-icon");
-      img.setAttr("src", avatarSrc);
+      img.setAttr("src", resolvedAvatar);
       img.setAttr("draggable", "false");
       img.onerror = () => {
         img.remove();
@@ -2189,8 +2255,10 @@ ${data.url}`).onClick(() => {
 };
 var CodeBlockProcessor = _CodeBlockProcessor;
 CodeBlockProcessor.settings = null;
+CodeBlockProcessor.imageCache = null;
 
 // src/cache.ts
+var import_obsidian9 = require("obsidian");
 var MetadataCache = class {
   constructor(enabled = true, expiryHours = 24) {
     this.cache = /* @__PURE__ */ new Map();
@@ -2253,10 +2321,145 @@ var MetadataCache = class {
     return removed;
   }
 };
+var ImageCache = class {
+  constructor(app, pluginDir, enabled = false) {
+    this.app = app;
+    this.cacheDir = `${pluginDir}/cache`;
+    this.enabled = enabled;
+    this.urlMap = /* @__PURE__ */ new Map();
+  }
+  setEnabled(enabled) {
+    this.enabled = enabled;
+  }
+  isEnabled() {
+    return this.enabled;
+  }
+  async ensureCacheDir() {
+    try {
+      const exists = await this.app.vault.adapter.exists(this.cacheDir);
+      if (!exists) {
+        await this.app.vault.adapter.mkdir(this.cacheDir);
+      }
+    } catch (e) {
+    }
+  }
+  urlToFilename(url) {
+    const ext = this.getExtensionFromUrl(url);
+    const baseName = url.replace(/[^a-zA-Z0-9-]/g, "_");
+    return `${baseName}.${ext}`;
+  }
+  getExtensionFromUrl(url) {
+    try {
+      const pathname = new URL(url).pathname;
+      const match = pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/i);
+      if (match)
+        return match[1].toLowerCase();
+    } catch (e) {
+    }
+    return "png";
+  }
+  getFilePath(filename) {
+    return `${this.cacheDir}/${filename}`;
+  }
+  async cacheImage(url) {
+    if (!this.enabled)
+      return null;
+    const filename = this.urlToFilename(url);
+    const filePath = this.getFilePath(filename);
+    try {
+      const exists = await this.app.vault.adapter.exists(filePath);
+      if (exists) {
+        this.urlMap.set(filename, url);
+        return filename;
+      }
+    } catch (e) {
+    }
+    try {
+      await this.ensureCacheDir();
+      const response = await (0, import_obsidian9.requestUrl)({
+        url,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+      });
+      if (response.status === 200 && response.arrayBuffer) {
+        await this.app.vault.adapter.writeBinary(filePath, response.arrayBuffer);
+        this.urlMap.set(filename, url);
+        await this.saveUrlMap();
+        log("\u56FE\u7247\u5DF2\u7F13\u5B58:", url);
+        return filename;
+      }
+    } catch (e) {
+      log("\u56FE\u7247\u7F13\u5B58\u5931\u8D25:", url, e);
+    }
+    return null;
+  }
+  async getCachedResourcePath(filename) {
+    const filePath = this.getFilePath(filename);
+    try {
+      const exists = await this.app.vault.adapter.exists(filePath);
+      if (exists) {
+        return this.app.vault.adapter.getResourcePath(filePath);
+      }
+    } catch (e) {
+    }
+    return null;
+  }
+  getOriginalUrl(filename) {
+    return this.urlMap.get(filename) || null;
+  }
+  async clear() {
+    try {
+      const exists = await this.app.vault.adapter.exists(this.cacheDir);
+      if (exists) {
+        const result = await this.app.vault.adapter.list(this.cacheDir);
+        for (const file of result.files) {
+          await this.app.vault.adapter.remove(file);
+        }
+      }
+      this.urlMap.clear();
+      await this.saveUrlMap();
+    } catch (e) {
+      log("\u6E05\u9664\u56FE\u7247\u7F13\u5B58\u5931\u8D25:", e);
+    }
+  }
+  getCacheDir() {
+    return this.cacheDir;
+  }
+  getAbsoluteCacheDir() {
+    const adapter = this.app.vault.adapter;
+    return `${adapter.basePath}/${this.cacheDir}`;
+  }
+  async loadUrlMap() {
+    const mapPath = `${this.cacheDir}/image_map.json`;
+    try {
+      const exists = await this.app.vault.adapter.exists(mapPath);
+      if (exists) {
+        const data = JSON.parse(await this.app.vault.adapter.read(mapPath));
+        this.urlMap = new Map(Object.entries(data));
+      }
+    } catch (e) {
+    }
+  }
+  async saveUrlMap() {
+    try {
+      await this.ensureCacheDir();
+      const mapPath = `${this.cacheDir}/image_map.json`;
+      const data = {};
+      this.urlMap.forEach((url, filename) => {
+        data[filename] = url;
+      });
+      await this.app.vault.adapter.write(mapPath, JSON.stringify(data, null, 2));
+    } catch (e) {
+      log("\u4FDD\u5B58\u56FE\u7247\u6620\u5C04\u5931\u8D25:", e);
+    }
+  }
+};
 
 // src/main.ts
-var ObsidianAutoCardLink = class extends import_obsidian9.Plugin {
+var ObsidianAutoCardLink = class extends import_obsidian10.Plugin {
   async onload() {
+    var _a;
     await this.loadSettings();
     this.cache = new MetadataCache(
       this.settings.cacheEnabled,
@@ -2265,9 +2468,17 @@ var ObsidianAutoCardLink = class extends import_obsidian9.Plugin {
     const storedData = await this.loadData();
     const cacheEntries = (storedData == null ? void 0 : storedData["auto-card-link-cache"]) || null;
     this.cache.fromJSON(cacheEntries);
+    this.imageCache = new ImageCache(
+      this.app,
+      (_a = this.manifest.dir) != null ? _a : "",
+      this.settings.imageCacheEnabled
+    );
+    await this.imageCache.loadUrlMap();
     CodeBlockGenerator.settings = this.settings;
     CodeBlockGenerator.cache = this.cache;
+    CodeBlockGenerator.imageCache = this.imageCache;
     CodeBlockProcessor.settings = this.settings;
+    CodeBlockProcessor.imageCache = this.imageCache;
     this.registerMarkdownCodeBlockProcessor("cardlink", async (source, el) => {
       const processor = new CodeBlockProcessor(this.app);
       await processor.run(source, el);
@@ -2382,7 +2593,7 @@ var ObsidianAutoCardLink = class extends import_obsidian9.Plugin {
     const url = clipboardText.trim();
     if (!CheckIf.isUrl(url))
       return;
-    const activeView = this.app.workspace.getActiveViewOfType(import_obsidian9.MarkdownView);
+    const activeView = this.app.workspace.getActiveViewOfType(import_obsidian10.MarkdownView);
     if (!activeView)
       return;
     const editor = activeView.editor;
@@ -2397,7 +2608,7 @@ var ObsidianAutoCardLink = class extends import_obsidian9.Plugin {
   addContextMenuItems(menu) {
     menu.addItem((item) => {
       item.setTitle(t("Render as card menu")).setIcon("link").onClick(async () => {
-        const activeView = this.app.workspace.getActiveViewOfType(import_obsidian9.MarkdownView);
+        const activeView = this.app.workspace.getActiveViewOfType(import_obsidian10.MarkdownView);
         if (!activeView)
           return;
         await this.enhanceSelectedUrl(activeView.editor);
