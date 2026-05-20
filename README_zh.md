@@ -1,6 +1,6 @@
 <div align="center">
 
-### 卡片链接
+### 链接卡片
 
 一个将 URL 渲染为精美的卡片的 Obsidian 插件
 
@@ -102,10 +102,6 @@ date: 2024-01-15
 
 1. 部署 Nitter（推荐使用 Docker）
 2. 在插件设置中填入 Nitter 地址（如 `http://127.0.0.1:8080`）
-
-## 🎨 自定义样式
-
-卡片样式定义在 `styles.css` 中。你可以通过 [CSS 片段](https://help.obsidian.md/How+to/Add+custom+styles#Use+Themes+and+or+CSS+snippets) 覆盖样式。
 
 ## 🏗️ 开发
 

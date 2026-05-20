@@ -5,3 +5,4 @@ package-lock.json
 data.json
 .DS_Store
 .devconfig.json
+tests

@@ -103,10 +103,6 @@ To enable X/Twitter card links, you need to deploy a [Nitter](https://github.com
 1. Deploy Nitter (Docker recommended)
 2. Enter the Nitter URL in the plugin settings (e.g., `http://127.0.0.1:8080`)
 
-## 🎨 Custom Styles
-
-Card styles are defined in `styles.css`. You can override them using [CSS snippets](https://help.obsidian.md/How+to/Add+custom+styles#Use+Themes+and+or+CSS+snippets).
-
 ## 🏗️ Development
 
 ```bash
