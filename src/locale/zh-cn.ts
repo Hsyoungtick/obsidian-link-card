@@ -63,6 +63,11 @@ const zhCN: Record<string, string> = {
 	"Internal links error": "内部链接必须用引号包围",
 	"Cardlink unknown error": "代码块：卡片链接未知错误",
 	"Fetching data": "获取数据中",
+	"Refresh images": "刷新图片",
+	"Images refreshed": "图片已刷新",
+	"Refresh card": "刷新卡片",
+	"Card refreshed": "卡片已刷新",
+	"Failed to update code block": "无法更新代码块",
 };
 
 export default zhCN;

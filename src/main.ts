@@ -38,6 +38,7 @@ export default class ObsidianAutoCardLink extends Plugin {
 		CodeBlockGenerator.cache = this.cache;
 		CodeBlockGenerator.imageCache = this.imageCache;
 		CodeBlockProcessor.settings = this.settings;
+		CodeBlockProcessor.cache = this.cache;
 		CodeBlockProcessor.imageCache = this.imageCache;
 
 		this.registerMarkdownCodeBlockProcessor("cardlink", async (source, el) => {

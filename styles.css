@@ -56,6 +56,26 @@
     margin: 0 0.5em 0 0 !important;
 }
 
+.auto-card-link-refresh {
+    position: absolute;
+    right: calc(var(--size-2-2) + var(--auto-card-link-button-width));
+    bottom: var(--size-2-2);
+    z-index: 1;
+}
+
+.obsidian-app:not(.is-mobile) .auto-card-link-container:not(:hover) .auto-card-link-refresh {
+    display: none;
+}
+
+.auto-card-link-refresh.is-loading svg {
+    animation: auto-card-link-spin 1s linear infinite;
+}
+
+@keyframes auto-card-link-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .auto-card-link-copy-url {
     position: absolute;
     right: var(--size-2-2);

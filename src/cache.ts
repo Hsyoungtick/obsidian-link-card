@@ -44,6 +44,10 @@ export class MetadataCache {
 		this.cache.clear();
 	}
 
+	remove(url: string): void {
+		this.cache.delete(url);
+	}
+
 	toJSON(): Record<string, CacheEntry> {
 		const obj: Record<string, CacheEntry> = {};
 		this.cache.forEach((value, key) => {
@@ -140,6 +144,7 @@ export class ImageCache {
 			const exists = await this.app.vault.adapter.exists(filePath);
 			if (exists) {
 				this.urlMap.set(filename, url);
+				await this.saveUrlMap();
 				return filename;
 			}
 		} catch {
@@ -164,6 +169,21 @@ export class ImageCache {
 			}
 		} catch (e) {
 			log("图片缓存失败:", url, e);
+		}
+		return null;
+	}
+
+	async hasCachedImage(url: string): Promise<string | null> {
+		const filename = this.urlToFilename(url);
+		const filePath = this.getFilePath(filename);
+		try {
+			const exists = await this.app.vault.adapter.exists(filePath);
+			if (exists) {
+				this.urlMap.set(filename, url);
+				return filename;
+			}
+		} catch {
+			// 文件不存在时忽略
 		}
 		return null;
 	}

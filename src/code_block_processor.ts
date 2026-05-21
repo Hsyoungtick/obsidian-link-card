@@ -4,13 +4,15 @@ import {
 	Notice,
 	ButtonComponent,
 	getLinkpath,
+	MarkdownView,
 } from "obsidian";
 import { YamlParseError, NoRequiredParamsError } from "./errors";
 import { CheckIf } from "./checkif";
 import { ObsidianAutoCardLinkSettings } from "./settings";
-import { ImageCache } from "./cache";
+import { MetadataCache, ImageCache } from "./cache";
 import { t } from "./i18n";
 import { ICON_PLAY, ICON_STAR, ICON_DATE } from "./icons";
+import { EditorExtensions } from "./editor_enhancements";
 
 function insertSvg(container: HTMLElement, svgString: string): void {
 	const template = document.createElement("template");
@@ -65,6 +67,7 @@ function getCardTheme(data: CardData): CardTheme {
 export class CodeBlockProcessor {
 	app: App;
 	static settings: ObsidianAutoCardLinkSettings | null = null;
+	static cache: MetadataCache | null = null;
 	static imageCache: ImageCache | null = null;
 
 	constructor(app: App) {
@@ -173,6 +176,12 @@ export class CodeBlockProcessor {
 		return url;
 	}
 
+	async resolveAndApplyImage(url: string | undefined, imgEl: HTMLImageElement): Promise<void> {
+		if (!url) return;
+		const resolvedSrc = await this.resolveImageUrl(url);
+		imgEl.src = resolvedSrc;
+	}
+
 	async genLinkEl(data: CardData): Promise<HTMLElement> {
 		const theme = getCardTheme(data);
 		const isTwitter = data.host?.includes("x.com") || data.host?.includes("twitter.com");
@@ -185,6 +194,8 @@ export class CodeBlockProcessor {
 			containerEl.addClass("no-color-scheme");
 		}
 		containerEl.setAttr("data-auto-card-link-depth", data.indent);
+		containerEl.setAttr("data-url", data.url);
+		containerEl.setAttr("data-indent", String(data.indent));
 
 		const cardEl = document.createElement("a");
 		cardEl.setAttr("href", data.url);
@@ -203,11 +214,10 @@ export class CodeBlockProcessor {
 			coverBox.addClass("cover-box");
 			cardEl.appendChild(coverBox);
 
-			const resolvedImage = await this.resolveImageUrl(data.image);
 			const coverImg = document.createElement("img");
 			coverImg.addClass("cover-img");
-			coverImg.setAttr("src", resolvedImage);
 			coverImg.setAttr("draggable", "false");
+			await this.resolveAndApplyImage(data.image, coverImg);
 			coverImg.onerror = () => {
 				coverBox.remove();
 			};
@@ -322,11 +332,10 @@ export class CodeBlockProcessor {
 		const avatarSrc = data.avatar;
 		if (avatarSrc) {
 			usedRenderFields.push("avatar");
-			const resolvedAvatar = await this.resolveImageUrl(avatarSrc);
 			const img = document.createElement("img");
 			img.addClass(data.avatarIsFavicon ? "favicon-icon" : "avatar-icon");
-			img.setAttr("src", resolvedAvatar);
 			img.setAttr("draggable", "false");
+			await this.resolveAndApplyImage(avatarSrc, img);
 			img.onerror = () => {
 				img.remove();
 			};
@@ -349,6 +358,15 @@ export class CodeBlockProcessor {
 		bottomEl.appendChild(authorEl);
 
 		new ButtonComponent(containerEl)
+			.setClass("auto-card-link-refresh")
+			.setClass("clickable-icon")
+			.setIcon("refresh-cw")
+			.setTooltip(t("Refresh card"))
+			.onClick(async () => {
+				await this.handleRefresh(containerEl);
+			});
+
+		new ButtonComponent(containerEl)
 			.setClass("auto-card-link-copy-url")
 			.setClass("clickable-icon")
 			.setIcon("copy")
@@ -361,6 +379,85 @@ export class CodeBlockProcessor {
 		log("卡片渲染使用的字段:", usedRenderFields.join(", "));
 
 		return containerEl;
+	}
+
+	private async handleRefresh(containerEl: HTMLElement): Promise<void> {
+		const url = containerEl.getAttr("data-url");
+		if (!url) return;
+
+		const refreshBtn = containerEl.querySelector(".auto-card-link-refresh") as HTMLElement;
+		if (refreshBtn) {
+			refreshBtn.addClass("is-loading");
+		}
+
+		if (CodeBlockProcessor.cache) {
+			CodeBlockProcessor.cache.remove(url);
+		}
+
+		const { CodeBlockGenerator } = await import("./code_block_generator");
+		const generator = new CodeBlockGenerator(null as never);
+		const metadata = await generator.fetchLinkMetadata(url);
+
+		if (!metadata) {
+			if (refreshBtn) refreshBtn.removeClass("is-loading");
+			new Notice(t("Failed to fetch"));
+			return;
+		}
+
+		await this.cacheImages(metadata);
+
+		const newCodeBlock = generator.genCodeBlock(metadata);
+		const updated = this.updateCodeBlockInEditor(url, newCodeBlock);
+
+		if (!updated) {
+			if (refreshBtn) refreshBtn.removeClass("is-loading");
+			new Notice(t("Failed to update code block"));
+			return;
+		}
+
+		new Notice(t("Card refreshed"));
+	}
+
+	private updateCodeBlockInEditor(url: string, newCodeBlock: string): boolean {
+		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+		if (!activeView) return false;
+
+		const editor = activeView.editor;
+		const content = editor.getValue();
+
+		const regex = /```cardlink\n([\s\S]*?)```/g;
+		let match;
+		while ((match = regex.exec(content)) !== null) {
+			if (match[1].includes(url)) {
+				const start = match.index;
+				const end = start + match[0].length;
+				const startPos = EditorExtensions.getEditorPositionFromIndex(content, start);
+				const endPos = EditorExtensions.getEditorPositionFromIndex(content, end);
+				editor.replaceRange(newCodeBlock, startPos, endPos);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private async cacheImages(metadata: Record<string, unknown>): Promise<void> {
+		if (!CodeBlockProcessor.imageCache?.isEnabled()) return;
+
+		const imageFields = ["image", "avatar"];
+		for (const field of imageFields) {
+			const value = metadata[field];
+			if (typeof value === "string" && value.match(/^https?:\/\//i)) {
+				const cached = await CodeBlockProcessor.imageCache.hasCachedImage(value);
+				if (cached) {
+					metadata[field] = `[[${cached}]]`;
+					continue;
+				}
+				const filename = await CodeBlockProcessor.imageCache.cacheImage(value);
+				if (filename) {
+					metadata[field] = `[[${filename}]]`;
+				}
+			}
+		}
 	}
 
 	getLocalImagePath(link: string): string {

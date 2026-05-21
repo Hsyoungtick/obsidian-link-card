@@ -272,6 +272,11 @@ export class CodeBlockGenerator {
 		for (const field of imageFields) {
 			const value = metadata[field];
 			if (typeof value === "string" && value.match(/^https?:\/\//i)) {
+				const cached = await CodeBlockGenerator.imageCache.hasCachedImage(value);
+				if (cached) {
+					metadata[field] = `[[${cached}]]`;
+					continue;
+				}
 				const filename = await CodeBlockGenerator.imageCache.cacheImage(value);
 				if (filename) {
 					metadata[field] = `[[${filename}]]`;

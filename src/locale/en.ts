@@ -63,6 +63,11 @@ const en: Record<string, string> = {
 	"Internal links error": "Internal links must be surrounded by quotes.",
 	"Cardlink unknown error": "Code Block: cardlink unknown error",
 	"Fetching data": "Fetching Data",
+	"Refresh images": "Refresh images",
+	"Images refreshed": "Images refreshed",
+	"Refresh card": "Refresh card",
+	"Card refreshed": "Card refreshed",
+	"Failed to update code block": "Failed to update code block",
 };
 
 export default en;
