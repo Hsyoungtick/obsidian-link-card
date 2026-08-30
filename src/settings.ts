@@ -5,6 +5,7 @@ import type ObsidianAutoCardLink from "./main";
 
 export interface ObsidianAutoCardLinkSettings {
 	enhanceDefaultPaste: boolean;
+	simplifiedMode: boolean;
 	showInMenuItem: boolean;
 	followColorScheme: boolean;
 	cacheEnabled: boolean;
@@ -18,6 +19,7 @@ export interface ObsidianAutoCardLinkSettings {
 
 export const DEFAULT_SETTINGS: ObsidianAutoCardLinkSettings = {
 	enhanceDefaultPaste: true,
+	simplifiedMode: false,
 	showInMenuItem: true,
 	followColorScheme: true,
 	cacheEnabled: false,
@@ -51,6 +53,18 @@ export class ObsidianAutoCardLinkSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.enhanceDefaultPaste)
 					.onChange(async (value) => {
 						this.plugin.settings.enhanceDefaultPaste = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName(t("Simplified mode"))
+			.setDesc(t("Simplified mode desc"))
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.simplifiedMode)
+					.onChange(async (value) => {
+						this.plugin.settings.simplifiedMode = value;
 						await this.plugin.saveSettings();
 					})
 			);

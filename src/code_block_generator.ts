@@ -42,7 +42,10 @@ export class CodeBlockGenerator {
 		const fetchingText = `[${t("Fetching data")}#${pasteId}](${url})`;
 		this.editor.replaceSelection(fetchingText);
 
-		const linkMetadata = await this.fetchLinkMetadata(url);
+		const simplifiedMode = CodeBlockGenerator.settings?.simplifiedMode ?? false;
+		const fetchedData = simplifiedMode
+			? await this.fetchLinkTitle(url)
+			: await this.fetchLinkMetadata(url);
 
 		const text = this.editor.getValue();
 		const start = text.indexOf(fetchingText);
@@ -54,19 +57,38 @@ export class CodeBlockGenerator {
 		const startPos = EditorExtensions.getEditorPositionFromIndex(text, start);
 		const endPos = EditorExtensions.getEditorPositionFromIndex(text, end);
 
-		if (!linkMetadata) {
+		if (!fetchedData) {
 			new Notice(t("Failed to fetch"));
 			this.editor.replaceRange(selectedText || url, startPos, endPos);
 			return;
 		}
 
-		await this.cacheImages(linkMetadata);
+		if (typeof fetchedData === "string") {
+			this.editor.replaceRange(
+				this.genMarkdownLink(fetchedData, url),
+				startPos,
+				endPos
+			);
+			return;
+		}
+
+		await this.cacheImages(fetchedData);
 
 		this.editor.replaceRange(
-			this.genCodeBlock(linkMetadata),
+			this.genCodeBlock(fetchedData),
 			startPos,
 			endPos
 		);
+	}
+
+	genMarkdownLink(title: string, url: string): string {
+		const linkText = title
+			.replace(/\r\n|\n|\r/g, " ")
+			.replace(/\s+/g, " ")
+			.replace(/([\\\[\]])/g, "\\$1")
+			.trim();
+		const destination = this.normalizeUrl(url).replace(/([\\()])/g, "\\$1");
+		return `[${linkText}](${destination})`;
 	}
 
 	genCodeBlock(linkMetadata: Record<string, unknown>): string {
@@ -212,6 +234,47 @@ export class CodeBlockGenerator {
 		return result;
 	}
 
+	async fetchLinkTitle(url: string): Promise<string | null> {
+		const normalizedUrl = this.normalizeUrl(url);
+		try {
+			new URL(normalizedUrl);
+		} catch {
+			return null;
+		}
+
+		const cached = CodeBlockGenerator.cache?.get(normalizedUrl);
+		if (cached && typeof cached.title === "string" && cached.title.trim()) {
+			return cached.title.trim();
+		}
+
+		const res = await requestUrl({
+			url: normalizedUrl,
+			headers: {
+				"User-Agent": DEFAULT_USER_AGENT,
+				Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+				"Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+			},
+		}).catch(() => null);
+
+		if (res && res.status === 200) {
+			const doc = new DOMParser().parseFromString(res.text, "text/html");
+			const candidates = [
+				doc.querySelector("meta[property='og:title']")?.getAttribute("content"),
+				doc.querySelector("meta[name='twitter:title'], meta[property='twitter:title']")?.getAttribute("content"),
+				doc.querySelector("title")?.textContent,
+			];
+			const title = candidates.find((value) => value?.trim())?.trim();
+			if (title) return title;
+		}
+
+		if (CodeBlockGenerator.settings?.fallbackApiEnabled) {
+			const title = await this.fetchTitleFromFallbackApi(normalizedUrl);
+			if (title) return title;
+		}
+
+		return null;
+	}
+
 	logResult(url: string, data: Record<string, unknown>): void {
 		log("── 输出字段 ──");
 		for (const key of Object.keys(data)) {
@@ -259,6 +322,20 @@ export class CodeBlockGenerator {
 		return null;
 	}
 
+	async fetchTitleFromFallbackApi(url: string): Promise<string | null> {
+		try {
+			const microlinkUrl = `https://api.microlink.io/?url=${encodeURIComponent(url)}`;
+			const res = await requestUrl({ url: microlinkUrl });
+			const title = res.status === 200 && res.json?.status === "success"
+				? res.json.data?.title
+				: null;
+			return typeof title === "string" && title.trim() ? title.trim() : null;
+		} catch (e) {
+			log("Microlink title fallback error:", e);
+			return null;
+		}
+	}
+
 	saveToCache(url: string, data: Record<string, unknown>): void {
 		if (CodeBlockGenerator.cache) {
 			CodeBlockGenerator.cache.set(url, data);
@@ -283,6 +360,11 @@ export class CodeBlockGenerator {
 				}
 			}
 		}
+	}
+
+	normalizeUrl(url: string): string {
+		const trimmedUrl = url.trim();
+		return /^https?:\/\//i.test(trimmedUrl) ? trimmedUrl : `https://${trimmedUrl}`;
 	}
 
 	createBlockHash(): string {

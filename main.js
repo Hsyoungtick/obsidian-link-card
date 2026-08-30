@@ -31,6 +31,8 @@ var init_en = __esm({
     en = {
       "Enhance default paste": "Enhance default paste",
       "Enhance default paste desc": "Fetch the link metadata when pasting a url in the editor with the default paste command",
+      "Simplified mode": "Simplified mode",
+      "Simplified mode desc": "Fetch only the link title and save it as a Markdown link without rendering a card",
       "Show in menu item": "Show in menu item",
       "Show in menu item desc": "Whether to add commands in right click menu items",
       "Follow color scheme": "Follow color scheme",
@@ -110,6 +112,8 @@ var init_zh_cn = __esm({
     zhCN = {
       "Enhance default paste": "\u7C98\u8D34 URL \u4E3A\u5361\u7247",
       "Enhance default paste desc": "\u4F7F\u7528\u9ED8\u8BA4\u7C98\u8D34\u547D\u4EE4\u5728\u7F16\u8F91\u5668\u4E2D\u7C98\u8D34 url \u65F6\u83B7\u53D6\u94FE\u63A5\u5143\u6570\u636E",
+      "Simplified mode": "\u7CBE\u7B80\u6A21\u5F0F",
+      "Simplified mode desc": "\u4EC5\u83B7\u53D6\u94FE\u63A5\u6807\u9898\u5E76\u4FDD\u5B58\u4E3A Markdown \u94FE\u63A5\uFF0C\u4E0D\u6E32\u67D3\u4E3A\u5361\u7247",
       "Show in menu item": "\u53F3\u952E\u83DC\u5355\u547D\u4EE4",
       "Show in menu item desc": "\u662F\u5426\u5728\u53F3\u952E\u83DC\u5355\u4E2D\u6DFB\u52A0\u547D\u4EE4",
       "Follow color scheme": "\u8DDF\u968F\u65E5\u591C\u6A21\u5F0F",
@@ -1654,11 +1658,13 @@ var init_code_block_generator = __esm({
         this.editor = editor;
       }
       async convertUrlToCodeBlock(url) {
+        var _a, _b;
         const selectedText = this.editor.getSelection();
         const pasteId = this.createBlockHash();
         const fetchingText = `[${t("Fetching data")}#${pasteId}](${url})`;
         this.editor.replaceSelection(fetchingText);
-        const linkMetadata = await this.fetchLinkMetadata(url);
+        const simplifiedMode = (_b = (_a = _CodeBlockGenerator.settings) == null ? void 0 : _a.simplifiedMode) != null ? _b : false;
+        const fetchedData = simplifiedMode ? await this.fetchLinkTitle(url) : await this.fetchLinkMetadata(url);
         const text = this.editor.getValue();
         const start = text.indexOf(fetchingText);
         if (start < 0) {
@@ -1668,17 +1674,30 @@ var init_code_block_generator = __esm({
         const end = start + fetchingText.length;
         const startPos = EditorExtensions.getEditorPositionFromIndex(text, start);
         const endPos = EditorExtensions.getEditorPositionFromIndex(text, end);
-        if (!linkMetadata) {
+        if (!fetchedData) {
           new import_obsidian7.Notice(t("Failed to fetch"));
           this.editor.replaceRange(selectedText || url, startPos, endPos);
           return;
         }
-        await this.cacheImages(linkMetadata);
+        if (typeof fetchedData === "string") {
+          this.editor.replaceRange(
+            this.genMarkdownLink(fetchedData, url),
+            startPos,
+            endPos
+          );
+          return;
+        }
+        await this.cacheImages(fetchedData);
         this.editor.replaceRange(
-          this.genCodeBlock(linkMetadata),
+          this.genCodeBlock(fetchedData),
           startPos,
           endPos
         );
+      }
+      genMarkdownLink(title, url) {
+        const linkText = title.replace(/\r\n|\n|\r/g, " ").replace(/\s+/g, " ").replace(/([\\\[\]])/g, "\\$1").trim();
+        const destination = this.normalizeUrl(url).replace(/([\\()])/g, "\\$1");
+        return `[${linkText}](${destination})`;
       }
       genCodeBlock(linkMetadata) {
         const codeBlockTexts = ["\n```cardlink"];
@@ -1791,6 +1810,44 @@ var init_code_block_generator = __esm({
         logGroupEnd();
         return result;
       }
+      async fetchLinkTitle(url) {
+        var _a, _b, _c, _d, _e, _f;
+        const normalizedUrl = this.normalizeUrl(url);
+        try {
+          new URL(normalizedUrl);
+        } catch (e) {
+          return null;
+        }
+        const cached = (_a = _CodeBlockGenerator.cache) == null ? void 0 : _a.get(normalizedUrl);
+        if (cached && typeof cached.title === "string" && cached.title.trim()) {
+          return cached.title.trim();
+        }
+        const res = await (0, import_obsidian7.requestUrl)({
+          url: normalizedUrl,
+          headers: {
+            "User-Agent": DEFAULT_USER_AGENT,
+            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"
+          }
+        }).catch(() => null);
+        if (res && res.status === 200) {
+          const doc = new DOMParser().parseFromString(res.text, "text/html");
+          const candidates = [
+            (_b = doc.querySelector("meta[property='og:title']")) == null ? void 0 : _b.getAttribute("content"),
+            (_c = doc.querySelector("meta[name='twitter:title'], meta[property='twitter:title']")) == null ? void 0 : _c.getAttribute("content"),
+            (_d = doc.querySelector("title")) == null ? void 0 : _d.textContent
+          ];
+          const title = (_e = candidates.find((value) => value == null ? void 0 : value.trim())) == null ? void 0 : _e.trim();
+          if (title)
+            return title;
+        }
+        if ((_f = _CodeBlockGenerator.settings) == null ? void 0 : _f.fallbackApiEnabled) {
+          const title = await this.fetchTitleFromFallbackApi(normalizedUrl);
+          if (title)
+            return title;
+        }
+        return null;
+      }
       logResult(url, data) {
         log("\u2500\u2500 \u8F93\u51FA\u5B57\u6BB5 \u2500\u2500");
         for (const key of Object.keys(data)) {
@@ -1835,6 +1892,18 @@ var init_code_block_generator = __esm({
         }
         return null;
       }
+      async fetchTitleFromFallbackApi(url) {
+        var _a, _b;
+        try {
+          const microlinkUrl = `https://api.microlink.io/?url=${encodeURIComponent(url)}`;
+          const res = await (0, import_obsidian7.requestUrl)({ url: microlinkUrl });
+          const title = res.status === 200 && ((_a = res.json) == null ? void 0 : _a.status) === "success" ? (_b = res.json.data) == null ? void 0 : _b.title : null;
+          return typeof title === "string" && title.trim() ? title.trim() : null;
+        } catch (e) {
+          log("Microlink title fallback error:", e);
+          return null;
+        }
+      }
       saveToCache(url, data) {
         if (_CodeBlockGenerator.cache) {
           _CodeBlockGenerator.cache.set(url, data);
@@ -1859,6 +1928,10 @@ var init_code_block_generator = __esm({
             }
           }
         }
+      }
+      normalizeUrl(url) {
+        const trimmedUrl = url.trim();
+        return /^https?:\/\//i.test(trimmedUrl) ? trimmedUrl : `https://${trimmedUrl}`;
       }
       createBlockHash() {
         let result = "";
@@ -1893,6 +1966,7 @@ init_i18n();
 init_utils();
 var DEFAULT_SETTINGS = {
   enhanceDefaultPaste: true,
+  simplifiedMode: false,
   showInMenuItem: true,
   followColorScheme: true,
   cacheEnabled: false,
@@ -1916,6 +1990,12 @@ var ObsidianAutoCardLinkSettingTab = class extends import_obsidian2.PluginSettin
     new import_obsidian2.Setting(containerEl).setName(t("Enhance default paste")).setDesc(t("Enhance default paste desc")).addToggle(
       (toggle) => toggle.setValue(this.plugin.settings.enhanceDefaultPaste).onChange(async (value) => {
         this.plugin.settings.enhanceDefaultPaste = value;
+        await this.plugin.saveSettings();
+      })
+    );
+    new import_obsidian2.Setting(containerEl).setName(t("Simplified mode")).setDesc(t("Simplified mode desc")).addToggle(
+      (toggle) => toggle.setValue(this.plugin.settings.simplifiedMode).onChange(async (value) => {
+        this.plugin.settings.simplifiedMode = value;
         await this.plugin.saveSettings();
       })
     );
@@ -2733,7 +2813,7 @@ var ObsidianAutoCardLink = class extends import_obsidian10.Plugin {
     const diff = {};
     for (const key of Object.keys(DEFAULT_SETTINGS)) {
       if (JSON.stringify(this.settings[key]) !== JSON.stringify(DEFAULT_SETTINGS[key])) {
-        diff[key] = this.settings[key];
+        Object.assign(diff, { [key]: this.settings[key] });
       }
     }
     if (Object.keys(diff).length === 0) {

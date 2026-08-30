@@ -1,6 +1,8 @@
 const en: Record<string, string> = {
 	"Enhance default paste": "Enhance default paste",
 	"Enhance default paste desc": "Fetch the link metadata when pasting a url in the editor with the default paste command",
+	"Simplified mode": "Simplified mode",
+	"Simplified mode desc": "Fetch only the link title and save it as a Markdown link without rendering a card",
 	"Show in menu item": "Show in menu item",
 	"Show in menu item desc": "Whether to add commands in right click menu items",
 	"Follow color scheme": "Follow color scheme",

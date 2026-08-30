@@ -1,6 +1,8 @@
 const zhCN: Record<string, string> = {
 	"Enhance default paste": "粘贴 URL 为卡片",
 	"Enhance default paste desc": "使用默认粘贴命令在编辑器中粘贴 url 时获取链接元数据",
+	"Simplified mode": "精简模式",
+	"Simplified mode desc": "仅获取链接标题并保存为 Markdown 链接，不渲染为卡片",
 	"Show in menu item": "右键菜单命令",
 	"Show in menu item desc": "是否在右键菜单中添加命令",
 	"Follow color scheme": "跟随日夜模式",

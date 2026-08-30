@@ -55,6 +55,7 @@ English / [中文](README_zh.md)
 | Setting | Description | Default |
 | --- | --- | --- |
 | Paste URL as card | Fetch metadata automatically when pasting a URL | `true` |
+| Simplified mode | Fetch only the title and save it as a standard Markdown link | `false` |
 | Context menu command | Add command to the right-click menu | `true` |
 | Follow color scheme | Cards follow Obsidian dark/light mode | `true` |
 | Enable cache | Cache fetched metadata | `false` |

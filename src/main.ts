@@ -98,7 +98,7 @@ export default class ObsidianAutoCardLink extends Plugin {
 		const diff: Partial<ObsidianAutoCardLinkSettings> = {};
 		for (const key of Object.keys(DEFAULT_SETTINGS) as Array<keyof ObsidianAutoCardLinkSettings>) {
 			if (JSON.stringify(this.settings[key]) !== JSON.stringify(DEFAULT_SETTINGS[key])) {
-				diff[key] = this.settings[key];
+				Object.assign(diff, { [key]: this.settings[key] });
 			}
 		}
 		if (Object.keys(diff).length === 0) {
