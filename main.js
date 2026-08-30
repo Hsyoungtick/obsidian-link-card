@@ -2702,13 +2702,11 @@ var ObsidianAutoCardLink = class extends import_obsidian10.Plugin {
         await this.enhanceSelectedUrl(editor);
       }
     });
-    if (this.settings.enhanceDefaultPaste) {
-      this.registerEvent(
-        this.app.workspace.on("editor-paste", (evt) => {
-          this.handlePaste(evt);
-        })
-      );
-    }
+    this.registerEvent(
+      this.app.workspace.on("editor-paste", (evt) => {
+        this.handlePaste(evt);
+      })
+    );
     if (this.settings.showInMenuItem) {
       this.registerEvent(
         this.app.workspace.on("editor-menu", (menu) => {
@@ -2792,6 +2790,8 @@ var ObsidianAutoCardLink = class extends import_obsidian10.Plugin {
   }
   handlePaste(evt) {
     var _a;
+    if (!this.settings.enhanceDefaultPaste)
+      return;
     const clipboardText = (_a = evt.clipboardData) == null ? void 0 : _a.getData("text/plain");
     if (!clipboardText)
       return;

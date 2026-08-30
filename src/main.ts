@@ -62,13 +62,11 @@ export default class ObsidianAutoCardLink extends Plugin {
 			},
 		});
 
-		if (this.settings.enhanceDefaultPaste) {
-			this.registerEvent(
-				this.app.workspace.on("editor-paste", (evt: ClipboardEvent) => {
-					this.handlePaste(evt);
-				})
-			);
-		}
+		this.registerEvent(
+			this.app.workspace.on("editor-paste", (evt: ClipboardEvent) => {
+				this.handlePaste(evt);
+			})
+		);
 
 		if (this.settings.showInMenuItem) {
 			this.registerEvent(
@@ -162,6 +160,8 @@ export default class ObsidianAutoCardLink extends Plugin {
 	}
 
 	handlePaste(evt: ClipboardEvent): void {
+		if (!this.settings.enhanceDefaultPaste) return;
+
 		const clipboardText = evt.clipboardData?.getData("text/plain");
 		if (!clipboardText) return;
 
